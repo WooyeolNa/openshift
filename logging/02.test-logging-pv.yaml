@@ -1,0 +1,225 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-compactor-pv-0
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: test-logging-sc
+  local:
+    path: /var/lib/containers/test-compactor-pv
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - skt-bssocpdawkr03.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr04.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr05.devocp1-416.sktelecom.com
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-index-gateway-pv-0
+spec:
+  capacity:
+    storage: 50Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: test-logging-sc
+  local:
+    path: /var/lib/containers/test-index-gateway-pv-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - skt-bssocpdawkr03.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr04.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr05.devocp1-416.sktelecom.com
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-index-gateway-pv-1
+spec:
+  capacity:
+    storage: 50Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: test-logging-sc
+  local:
+    path: /var/lib/containers/test-index-gateway-pv-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - skt-bssocpdawkr03.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr04.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr05.devocp1-416.sktelecom.com
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-ingester-pv-0
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: test-logging-sc
+  local:
+    path: /var/lib/containers/test-ingester-pv-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - skt-bssocpdawkr03.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr04.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr05.devocp1-416.sktelecom.com
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-ingester-pv-1
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: test-logging-sc
+  local:
+    path: /var/lib/containers/test-ingester-pv-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - skt-bssocpdawkr03.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr04.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr05.devocp1-416.sktelecom.com
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-ingester-pv-2
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: test-logging-sc
+  local:
+    path: /var/lib/containers/test-ingester-pv-2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - skt-bssocpdawkr03.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr04.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr05.devocp1-416.sktelecom.com
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-wal-pv-0
+spec:
+  capacity:
+    storage: 150Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: test-logging-sc
+  local:
+    path: /var/lib/containers/test-wal-pv-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - skt-bssocpdawkr03.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr04.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr05.devocp1-416.sktelecom.com
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-wal-pv-1
+spec:
+  capacity:
+    storage: 150Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: test-logging-sc
+  local:
+    path: /var/lib/containers/test-wal-pv-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - skt-bssocpdawkr03.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr04.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr05.devocp1-416.sktelecom.com
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-wal-pv-2
+spec:
+  capacity:
+    storage: 150Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: test-logging-sc
+  local:
+    path: /var/lib/containers/test-wal-pv-2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - skt-bssocpdawkr03.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr04.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr05.devocp1-416.sktelecom.com
+---

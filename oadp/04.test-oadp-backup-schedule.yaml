@@ -1,0 +1,17 @@
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: test-oadp-full-backup
+  namespace: openshift-adp
+spec:
+  schedule: 20 1 * * *
+  template:
+    includedNamespaces:
+    - test-oadp
+    excludeResources:
+    - nodes
+    - events
+    - events.events.k8s.io
+    storageLocation: oadp-test-1
+    defaultVolumesToFsBackup: true
+    ttl: 72h0m0s

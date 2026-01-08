@@ -1,0 +1,39 @@
+apiVersion: oadp.openshift.io/v1alpha1
+kind: DataProtectionApplication
+metadata:
+  name: oadp-test
+  namespace: openshift-adp
+spec:
+  configuration:
+    velero:
+      defaultPlugins:
+        - legacy-aws
+        - openshift
+      resourceTimeout: 10m
+    nodeAgent:
+      enable: true
+      uploaderType: kopia
+      podConfig:
+        tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/infra
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/router
+          operator: Exists
+  backupLocations:
+    - velero:
+        config:
+          profile: "default"
+          region: kor-1
+          s3Url: http://172.1.157.140:9000
+          insecureSkipTLSVerify: "true"
+          s3ForcePathStyle: "true"
+        provider: aws
+        default: true
+        credential:
+          key: cloud
+          name: cloud-credentials
+        objectStorage:
+          bucket: test-bucket
+          prefix: velero

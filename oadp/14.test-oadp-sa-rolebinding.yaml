@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: test-oadp
+  namespace: test-oadp
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-manager
+  namespace: test-oadp
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["create", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: bind-pod-manager
+  namespace: test-oadp
+subjects:
+- kind: ServiceAccount
+  name: test-oadp-sa
+  namespace: test-oadp
+roleRef:
+  kind: Role
+  name: pod-manager
+  apiGroup: rbac.authorization.k8s.io
+
+

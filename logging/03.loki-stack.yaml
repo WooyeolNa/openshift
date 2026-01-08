@@ -1,0 +1,23 @@
+apiVersion: loki.grafana.com/v1
+kind: LokiStack
+metadata:
+  name: logging-loki
+  namespace: openshift-logging
+spec:
+  template:
+  managementState: Managed
+  size: 1x.pico
+  replication:
+    zones:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+  storage:
+    schemas:
+    - effectiveDate: '2025-03-16'
+      version: v13
+    secret:
+      name: logging-loki-s3
+      type: s3
+  storageClassName: managed-nfs-storage
+  tenants:
+    mode: openshift-logging
