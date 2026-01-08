@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deployment
+  namespace: test
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: skt-bssocpdargst.devocp1-416.sktelecom.com:5016/library/nginx:stable-alpine3.20-perl
+        ports:
+        - containerPort: 80
+        securityContext:
+          privileged: true
+

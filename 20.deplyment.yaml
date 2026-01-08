@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: centos-deployment
+  namespace: test-1
+  labels:
+    app: centos
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: centos
+  template:
+    metadata:
+      labels:
+        app: centos
+    spec:
+      containers:
+      - name: centos
+        image: skt-bssocpdargst.devocp1-416.sktelecom.com:5016/centos/centos:latest 
+        command:
+        - /bin/sh
+        - -c
+        - echo -e "\nThis is pod $(hostname)\n;" > /usr/share/centos/html/index.html && centos -g 'daemon off;'
+        securityContext:
+          allowPrivilegeEscalation: false

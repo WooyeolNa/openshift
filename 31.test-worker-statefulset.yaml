@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: worker-statefulset-pod
+  namespace: test
+  labels:
+    test: pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      test: nginx-2
+  template:
+    metadata:
+      labels:
+        test: nginx-2
+        statefulset: ""
+    spec:
+      containers:
+      - name: nginx-test
+        image: skt-bssocpdargst.devocp1-416.sktelecom.com:5016/library/nginx:stable-alpine3.20-perl
+        command:
+        - /bin/sh
+        - -c
+        - echo -e "\nThis is pod $(hostname)\n;" > /usr/share/nginx/html/index.html && nginx -g 'daemon off;' 
+        securityContext:
+          privileged: true
+

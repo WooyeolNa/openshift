@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: statefulset-pod
+  namespace: test
+  labels:
+    test: pod
+spec:
+  replicas: 11
+  selector:
+    matchLabels:
+      test: test
+  template:
+    metadata:
+      labels:
+        test: test
+    spec:
+      affinity:
+        requireDuringSchedulingIgnoreDuringExecution:
+          nodeSelectorTerms:
+          - matchExpresstion:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+              - skt-bssocpdainf01.devocp1-416.sktelecom.com
+              - skt-bssocpdainf02.devocp1-416.sktelecom.com
+              - skt-bssocpdainf03.devocp1-416.sktelecom.com
+              - skt-bssocpdartr01.devocp1-416.sktelecom.com
+              - skt-bssocpdartr02.devocp1-416.sktelecom.com
+              - skt-bssocpdawrk01.devocp1-416.sktelecom.com
+              - skt-bssocpdawrk02.devocp1-416.sktelecom.com
+              - skt-bssocpdawrk03.devocp1-416.sktelecom.com
+              - skt-bssocpdawrk04.devocp1-416.sktelecom.com
+              - skt-bssocpdawrk05.devocp1-416.sktelecom.com
+              - skt-bssocpdawrk06.devocp1-416.sktelecom.com
+      containers:
+        - name: test-con
+          image: skt-bssocpdargst.devocp1-416.sktelecom.com:5000/centos/centos:latest
+          command:
+            - /bin/sh
+            - "-c"
+            - "sleep 60m"
+          volumeMounts:
+          - name: test-pvc
+            mountPath: /mnt
+          securityContext:
+            allowPrivilegeEscalation: false
+  volumeClaimTemplates:
+  - metadata:
+      name: test-pvc
+    spec: 
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "iscsi-class"
+      resources:
+        requests:
+          storage: 100Mi

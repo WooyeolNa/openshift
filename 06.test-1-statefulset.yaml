@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: statefulset-1-pod
+  namespace: test-1
+  labels:
+    test: pod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      test: nginx1
+  template:
+    metadata:
+      labels:
+        test: nginx1
+        statefulset: ""
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/router: ""
+      tolerations:
+        - key: node-role.kubernetes.io/router
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+      - name: nginx-test
+        image: skt-bssocpdargst.devocp1-416.sktelecom.com:5016/library/nginx:stable-alpine3.20-perl
+        command:
+        - /bin/sh
+        - -c
+        - echo -e "\nThis is pod $(hostname)\n;" > /usr/share/nginx/html/index.html && nginx -g 'daemon off;' 
+        securityContext:
+          privileged: true

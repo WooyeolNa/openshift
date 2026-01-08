@@ -1,0 +1,32 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: amdp-ocp-movie-hello
+  namespace: test
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: /
+spec:
+  ingressClassName: openshift-default
+  host: bss1.apps.devocp1-416.sktelecom.com
+  path: /hello
+  to:
+    kind: Service
+    name: test-nginx-app-ocp
+  port:
+    targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: amdp-ocp-movie-hello2
+  namespace: test
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: /
+spec:
+  host: bss1.apps.devocp1-416.sktelecom.com
+  path: /hello2
+  to:
+    kind: Service
+    name: test-1-nginx-app-ocp
+  port:
+    targetPort: 8080

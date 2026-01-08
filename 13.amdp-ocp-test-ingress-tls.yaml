@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: amdp-ocp-movie-https
+  namespace: test
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: /
+spec:
+  ingressClassName: openshift-default
+  rules:
+  - host: bss1.apps.devocp1-416.sktelecom.com
+    http:
+      paths:
+      - path: /hello
+        pathType: Prefix
+        backend:
+          service:
+            name: test-nginx-app-ocp
+            port:
+              number: 8080
+      - path: /hello2
+        pathType: Prefix
+        backend:
+          service:
+            name: test-1-nginx-app-ocp
+            port:
+              number: 8080
+  tls:
+  - hosts:
+    - bss1.apps.devocp1-416.sktelecom.com
+    secretName: test-route-tls
