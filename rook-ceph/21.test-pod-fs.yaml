@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: test-pod-fs
+  namespace: test
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: test-busybox-fs
+  template:
+    metadata:
+      labels:
+        app: test-busybox-fs
+    spec:
+      tolerations:
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 30
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 30
+      containers:
+      - name: busybox
+        image: registry.opas-tb.sktelecom.com:5000/test/busybox:latest
+        command:
+          - sh
+          - -c
+          - "sleep 3600"
+        volumeMounts:
+        - name: data
+          mountPath: /mnt/data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteMany"]
+      storageClassName: rook-cephfs
+      resources:
+        requests:
+          storage: 2Gi

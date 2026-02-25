@@ -1,0 +1,14 @@
+---
+
+- hosts: test01
+
+  tasks:
+    - name: Install test
+      ansible.builtin.dnf:
+        name: test
+        state: latest
+      ignore_errors: yes
+
+    - name: Print msg
+      ansible.builtin.debug:
+        msg: "Before task is ignored"

@@ -1,8 +1,0 @@
-apiVersion: operators.coreos.com/v1
-kind: OperatorGroup
-metadata:
-  name: test-oadp-og
-  namespace: test-oadp
-spec: 
-  targetNamespaces:
-    - test-oadp

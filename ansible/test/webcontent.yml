@@ -1,0 +1,23 @@
+---
+
+- name: webcontent
+  hosts: dev
+  tasks:
+    - name: Crate directory
+      file:
+        path: /webdev
+        group: webdev
+        mode: 2775
+        state: directory
+
+    - name: create link
+      file:
+        src: /webdev
+        dest: /var/www/html/webdev
+        state: link
+
+    - name: create html
+      copy:
+        dest: /webdev/index.html
+        content: Development
+        setype: httpd_sys_content_t

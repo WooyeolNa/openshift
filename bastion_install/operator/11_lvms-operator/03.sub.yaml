@@ -1,0 +1,10 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: lvms
+  namespace: openshift-storage
+spec:
+  installPlanApproval: Manual
+  name: lvms-operator
+  source: lvms-redhat-operator-index
+  sourceNamespace: openshift-marketplace

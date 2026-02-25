@@ -1,0 +1,27 @@
+---
+apiVersion: operator.openshift.io/v1alpha1
+kind: ImageContentSourcePolicy
+metadata:
+  labels:
+    operators.openshift.org/catalog: "true"
+  name: redhat-operator-index-0
+spec:
+  repositoryDigestMirrors:
+  - mirrors:
+    - localregistry:5000/olm-mirror/openshift-service-mesh
+    source: registry.redhat.io/openshift-service-mesh
+  - mirrors:
+    - localregistry:5000/olm-mirror/redhat
+    source: registry.redhat.io/redhat
+  - mirrors:
+    - localregistry:5000/olm-mirror/openshift4
+    source: registry.redhat.io/openshift4
+  - mirrors:
+    - localregistry:5000/olm-mirror/openshift-logging
+    source: registry.redhat.io/openshift-logging
+  - mirrors:
+    - localregistry:5000/olm-mirror/openshift-istio
+    source: registry.redhat.io/openshift-istio
+  - mirrors:
+    - localregistry:5000/olm-mirror/rhosdt
+    source: registry.redhat.io/rhosdt

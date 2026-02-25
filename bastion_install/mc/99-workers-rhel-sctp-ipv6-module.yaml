@@ -1,0 +1,27 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: 99-worker-load-sctp-ipv6-module
+  labels:
+    machineconfiguration.openshift.io/role: worker
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+        - path: /etc/modprobe.d/sctp-blacklist.conf
+          mode: 0644
+          overwrite: true
+          contents:
+            source: data:,
+        - path: /etc/modules-load.d/sctp-load.conf
+          mode: 0644
+          overwrite: true
+          contents:
+            source: data:,sctp%0A
+        - path: /etc/modules-load.d/ip6_table.conf
+          mode: 0644
+          overwrite: true
+          contents:
+            source: data:,ip6_tables%0Aip6table_security%0Aip6table_raw%0Aip6table_mangle%0Aip6table_filter%0Aip6table_nat%0Aipt_owner%0A

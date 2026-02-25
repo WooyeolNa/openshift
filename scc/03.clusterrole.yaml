@@ -1,0 +1,16 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: "2025-07-17T02:52:11Z"
+  name: system:openshift:scc:bss-scc
+  resourceVersion: "90249366"
+  uid: 06000ff9-7238-4733-80dd-df1fe6f2cd38
+rules:
+- apiGroups:
+  - security.openshift.io
+  resourceNames:
+  - bss-scc
+  resources:
+  - securitycontextconstraints
+  verbs:
+  - use

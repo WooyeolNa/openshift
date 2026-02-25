@@ -1,0 +1,8 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: redhat-operator-sriov-network-operator-index
+  namespace: openshift-marketplace
+spec:
+  image: snsu-registry.ocp.skt.local:5016/olm-mirror/redhat/redhat-operator-index:v4.16-sriov-network-operator-redhat-v4.16.0-202502171404
+  sourceType: grpc

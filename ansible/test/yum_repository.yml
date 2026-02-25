@@ -1,0 +1,22 @@
+---
+
+- name: Repository Setting
+  hosts: all
+  tasks:
+    - name: Create EX294_BaseOS
+      yum_repository:
+        name: EX294_BaseOS
+        description: EX294 baseos software
+        baseurl: http://172.1.157.214:8080/repo/BaseOS
+        #gpgcheck: yes
+        #gpgkey: http://redhat.example.com/rhel/rhel-gpg-key
+        enabled: yes
+
+    - name: Create EX294_AppStream
+      yum_repository:
+        name: EX294_AppStream
+        description: EX294 appstream software
+        baseurl: http://172.1.157.214:8080/repo/AppStream
+        #gpgcheck: yes
+        #gpgkey: http://redhat.example.com/rhel/rhel-gpg-key
+        enabled: yes

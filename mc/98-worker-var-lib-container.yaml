@@ -1,0 +1,68 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 98-worker-var-lib-containers
+spec:
+  config:
+    ignition:
+      version: 3.4.0
+    storage:
+      files:
+        - path: /etc/find-secondary-device
+          mode: 0755
+          contents:
+            source: data:text/plain;charset=utf-8;base64,IyEvYmluL2Jhc2gKc2V0IC11byBwaXBlZmFpbAoKZm9yIGRldmljZSBpbiAvZGV2L3NkKjsgZG8gCi91c3Ivc2Jpbi9ibGtpZCAiJHtkZXZpY2V9IiAmPiAvZGV2L251bGwKIGlmIFsgJD8gPT0gMiAgXTsgdGhlbgogICAgZWNobyAic2Vjb25kYXJ5IGRldmljZSBmb3VuZCAke2RldmljZX0iCiAgICBlY2hvICJjcmVhdGluZyBmaWxlc3lzdGVtIGZvciBjb250YWluZXJzIG1vdW50IgogICAgbWtmcy54ZnMgLUwgdmFyLWxpYi1jb250IC1mICIke2RldmljZX0iICY+IC9kZXYvbnVsbAogICAgdWRldmFkbSBzZXR0bGUKICAgIHRvdWNoIC9ldGMvdmFyLWxpYi1jb250YWluZXJzLW1vdW50CiAgICBleGl0CiBmaQpkb25lCmVjaG8gIkNvdWxkbid0IGZpbmQgc2Vjb25kYXJ5IGJsb2NrIGRldmljZSEiID4mMgpleGl0IDc3Cgo=
+    systemd:
+      units:
+        - name: find-secondary-device.service
+          enabled: true
+          contents: |
+            [Unit]
+            Description=Find secondary device
+            DefaultDependencies=false
+            After=systemd-udev-settle.service
+            Before=local-fs-pre.target
+            ConditionPathExists=!/etc/var-lib-containers-mount
+
+            [Service]
+            RemainAfterExit=yes
+            ExecStart=/etc/find-secondary-device
+
+            RestartForceExitStatus=77
+
+            [Install]
+            WantedBy=multi-user.target
+        - name: var-lib-containers.mount
+          enabled: true
+          contents: |
+            [Unit]
+            Description=Mount /var/lib/containers
+            Before=local-fs.target
+
+            [Mount]
+            What=/dev/disk/by-label/var-lib-cont
+            Where=/var/lib/containers
+            Type=xfs
+            TimeoutSec=120s
+
+            [Install]
+            RequiredBy=local-fs.target
+        - name: restorecon-var-lib-containers.service
+          enabled: true
+          contents: |
+            [Unit]
+            Description=Restore recursive SELinux security contexts
+            DefaultDependencies=no
+            After=var-lib-containers.mount
+            Before=crio.service
+
+            [Service]
+            Type=oneshot
+            RemainAfterExit=yes
+            ExecStart=/sbin/restorecon -R /var/lib/containers/
+            TimeoutSec=0
+
+            [Install]
+            WantedBy=multi-user.target graphical.target

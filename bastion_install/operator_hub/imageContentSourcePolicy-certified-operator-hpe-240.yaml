@@ -1,0 +1,15 @@
+---
+apiVersion: operator.openshift.io/v1alpha1
+kind: ImageContentSourcePolicy
+metadata:
+  labels:
+    operators.openshift.org/catalog: "true"
+  name: certified-operator-index-0
+spec:
+  repositoryDigestMirrors:
+  - mirrors:
+    - snsu-registry.ocp.skt.local:5000/olm-mirror/hpestorage
+    source: registry.connect.redhat.com/hpestorage
+  - mirrors:
+    - snsu-registry.ocp.skt.local:5000/olm-mirror/redhat
+    source: registry.redhat.io/redhat 

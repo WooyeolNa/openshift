@@ -1,0 +1,15 @@
+---
+- name: Polkit W/A
+  hosts: all
+  become: true
+  gather_facts: false
+  serial: 1
+  tasks:
+    - name: pkexec file chmod
+      file:
+         path: /usr/bin/pkexec
+         state: file
+         owner: root
+         group: root
+         mode: 0755
+

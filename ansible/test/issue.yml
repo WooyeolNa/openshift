@@ -1,0 +1,23 @@
+---
+
+- name: issue
+  hosts: all
+  tasks:
+    - name: issue
+      copy:
+        dest: /etc/issue
+        content: dev
+      when: ansible_hostname in groups.dev
+
+    - name: issue
+      copy:
+        dest: /etc/issue
+        content: test
+      when: ansible_hostname in groups.test
+
+    - name: issue
+      copy:
+        dest: /etc/issue
+        content: prod
+      when: ansible_hostname in groups.prod
+

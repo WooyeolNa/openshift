@@ -1,0 +1,17 @@
+---
+- name: Enable IPv6 related modules at boot
+  when: enable_ipv6 | default(false) | bool
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/ip6_tables.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      ip6_tables
+      ip6table_security
+      ip6table_raw
+      ip6table_mangle
+      ip6table_filter
+      ip6table_nat
+      ipt_owner
+

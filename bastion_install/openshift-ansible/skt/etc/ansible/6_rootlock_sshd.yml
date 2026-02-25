@@ -1,0 +1,68 @@
+---
+- name: root lock & sshd_config setting
+  hosts: all
+  become: true
+  serial: 5
+  vars:
+    uptime_limit : 30
+    cpu_idle_limit : 80
+    mem_limit : 15
+    ipaddr_limit : 1
+    qemu_limit : 0
+    timestamp: "{{lookup('pipe', 'date +%Y%m%d')}}"
+  tasks:
+  - name : Pre-check and Register Conditionals
+    block:
+#    - name: pre.0 Directory Create
+#      file:
+#         path: /ansible
+#         state: directory
+#         owner: root
+#         group: root
+#         mode: 0755
+    - name: Pre.1 Pre-Check File Copy
+      copy:
+         src: /ansible/files/pre-check2.sh
+         dest: /ansible/pre-check2.sh
+         owner: root
+         group: root
+         mode: 0744
+    - name: Pre.2 Execute Pre-Check Shell
+      shell: "{{ item }}"
+      with_items:
+         - /ansible/pre-check2.sh > /ansible/pre_check_results
+    - name: Pre.3 Uptime Result Register
+      shell: cat /ansible/pre_check_results  | grep -A 1 "\[Uptime\]" | tail -1 | awk '{print $1}'
+      register: uptime_result
+    - name: Pre.4 CPU Result Register
+      shell: cat /ansible/pre_check_results  |grep -A 1 "\[CPU Util.\]" | tail -1 | awk '{print $5}' | awk -F'.' '{print $1}'
+      register: cpu_result
+    - name: Pre.5 MEM Result Register
+      shell: cat /ansible/pre_check_results  |grep -A 1 "\[MEM Util.\]" | tail -1 | awk '{print $1}' | awk -F'.' '{print $1}'
+      register: mem_result
+    - name: Pre.6 IPADDR Result Register
+      shell: ip addr show | grep -w inet  |egrep -v "127.0.0.1|virbr"| awk '{print $NF,":",$2}'  | awk -F '/' '{print $1}' |wc -l
+      register: ipaddr_result
+    - name: Pre.7 QEMU Result Register
+      shell: cat /ansible/pre_check_results | tail -1 | awk '{print $1}'
+      register: qemu_result
+
+  - name: OS Configuraions Automation ###
+    block:
+    - name: 1. Hosts ping check
+      ping:
+    - name: 2. root lock & sshd_config
+      command: "{{ item }}"
+      with_items:
+         - sed -i s/"^PermitRootLogin yes"/"PermitRootLogin no"/g /etc/ssh/sshd_config
+         - systemctl restart sshd
+         - passwd -l root
+      args:
+         warn: false
+    when:
+#      - uptime_result.stdout|int < uptime_limit
+#      - cpu_result.stdout|int > cpu_idle_limit
+#      - mem_result.stdout|int < mem_limit
+#      - ipaddr_result.stdout|int == ipaddr_limit
+#      - qemu_result.stdout|int == qemu_limit
+ 

@@ -1,0 +1,8 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: coreos
+  name: os-layer1-custom
+spec:
+  osImageURL: skt-bssocpdargst.devocp1-416.sktelecom.com:5016/coreos/coreos_origin:layer1-tree

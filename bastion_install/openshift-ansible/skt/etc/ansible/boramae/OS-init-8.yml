@@ -1,0 +1,413 @@
+---
+- name: OS-init(S/W install & Configration settings)
+  hosts: all
+  become: true
+  serial: 1
+  vars:
+    uptime_limit : 20
+    cpu_idle_limit : 80
+    mem_limit : 15
+    ipaddr_limit : 1
+    qemu_limit : 0
+    timestamp: "{{lookup('pipe', 'date +%Y%m%d')}}"
+    packages:
+    - vim
+    - pciutils
+    - ipmitool
+    - lshw
+    - smartmontools
+    - sysstat
+    - psmisc
+    - lvm2
+    - traceroute
+    - tcpdump
+    - mtr
+    - net-tools
+#    - ntp
+    - zip
+#    - glances
+    - dstat
+#    - htop
+    - sos
+    - openssh
+    - openssl
+    - iotop
+#    - virt-top
+#    - iftop
+    - lm_sensors
+    - numactl
+    - lsof
+    create_user:
+    - name: suser
+      password: "{{'suser'|password_hash('sha512')}}"
+    - name: skroot
+      password: "{{'skroot'|password_hash('sha512')}}"
+    - name: tcore
+      password: "{{'tcore!2019'|password_hash('sha512')}}"
+    - name: bkms
+      password: "{{'tjdtn@279'|password_hash('sha512')}}"
+    - name: ansible
+      password: "{{'ansib1e!'|password_hash('sha512')}}"
+    sudoers:
+    - file: /etc/sudoers.d/tcore
+      line: "tcore ALL=(root) NOPASSWD: /usr/bin/systemctl start telegraf, /usr/bin/systemctl stop telegraf, /usr/bin/systemctl restart telegraf, /usr/bin/systemctl status telegraf, /usr/bin/yum, /usr/bin/rpm, /bin/sh -c echo BECOME-SUCCESS*"
+#    - file: /etc/sudoers.d/suser
+#      line: "suser ALL=(root) NOPASSWD: /sbin/hpasmcli, /sbin/hplog, /usr/sbin/dmidecode, /usr/sbin/ssacli ctrl all show, /usr/sbin/hpssacli ctrl all show, /usr/sbin/ilorest list --selector=thermal, /usr/sbin/ilorest list --selector=power--filter name=PowerMetrics, /usr/sbin/ilorest serverinfo --thermals, /usr/sbin/ilorest serverinfo --fans, /usr/sbin/ilorest serverinfo --power, /opt/dell/srvadmin/bin/omreport, /usr/sbin/ethtool"
+    - file: /etc/sudoers.d/ansible
+      line: "ansible ALL=NOPASSWD: ALL"
+    - file: /etc/sudoers.d/ansible
+      line: "Defaults:ansible !requiretty"
+
+  tasks:
+  - name : Pre-check and Register Conditionals
+    block:
+#    - name: pre.0 Directory Create
+#      file:
+#         path: /ansible
+#         state: directory
+#         owner: root
+#         group: root
+#         mode: 0755
+    - name: Pre.1 Pre-Check File Copy
+      copy:
+         src: /ansible/files/pre-check2.sh
+         dest: /ansible/pre-check2.sh
+         owner: root
+         group: root
+         mode: 0744
+    - name: Pre.2 Execute Pre-Check Shell
+      shell: "{{ item }}"
+      with_items:
+         - /ansible/pre-check2.sh > /ansible/pre_check_results
+    - name: Pre.3 Uptime Result Register
+      shell: cat /ansible/pre_check_results  | grep -A 1 "\[Uptime\]" | tail -1 | awk '{print $1}'
+      register: uptime_result
+    - name: Pre.4 CPU Result Register
+      shell: cat /ansible/pre_check_results  |grep -A 1 "\[CPU Util.\]" | tail -1 | awk '{print $5}' | awk -F'.' '{print $1}'
+      register: cpu_result
+    - name: Pre.5 MEM Result Register
+      shell: cat /ansible/pre_check_results  |grep -A 1 "\[MEM Util.\]" | tail -1 | awk '{print $1}' | awk -F'.' '{print $1}'
+      register: mem_result
+    - name: Pre.6 IPADDR Result Register
+      shell: ip addr show | grep -w inet  |egrep -v "127.0.0.1|virbr"| awk '{print $NF,":",$2}'  | awk -F '/' '{print $1}' |wc -l
+      register: ipaddr_result
+    - name: Pre.7 QEMU Result Register
+      shell: cat /ansible/pre_check_results | tail -1 | awk '{print $1}'
+      register: qemu_result
+
+  - name: OS Configuraions Automation ###
+    block:
+    - name: 1. Hosts ping check
+      ping:
+    - name: 2. Yum repository setting
+      block:
+      - name: 2-0. bkup Directory Create
+        file:
+           path: /root/bkup
+           state: directory
+           owner: root
+           group: root
+           mode: 0755
+      - name: 2-1. Yum.repos.d files remove
+        shell: "{{ item }}"
+        with_items:
+           - mv /etc/yum.repos.d/* /root/bkup/
+        args:
+           warn: false
+      - name: 2-2. Ansible repo file copy
+        copy:
+           src: /etc/yum.repos.d/ansible.repo
+           dest: /etc/yum.repos.d/ansible.repo
+           owner: root
+           group: root
+           mode: 0644
+      - name: 2-3. MVM repo file copy
+        copy:
+           src: /etc/yum.repos.d/CU_MVM.repo
+           dest: /etc/yum.repos.d/CU_MVM.repo
+           owner: root
+           group: root
+           mode: 0644
+    - name: 3. Yum Install
+      yum:
+         name: "{{packages}}"
+         state: latest
+         #skip_broken: yes
+    - name: 4. RPM & Script file copy
+      copy:
+         src: "{{ item }}"
+         dest: /ansible/
+         owner: root
+         group: root
+         mode: 0744
+      with_fileglob:
+         - /ansible/files/*
+    - name: 5. Create Users
+      user:
+         name: "{{ item.name }}"
+         password: "{{ item.password }}"
+         groups: wheel
+         shell: /bin/bash
+      with_items: "{{ create_user }}"
+#    - name: 6. Delete Users
+#      shell: "{{ item }}"
+#      with_items:
+         #- hostname
+#         - userdel shutdown
+#         - userdel halt
+#         - userdel lp
+#         - userdel ftp
+         #- userdel uucp
+         #- userdel nuucp
+#      args:
+#         warn: false
+    - name: 7. "skt-osbackup" RPM Install
+      yum:
+         name: /ansible/skt-osbackup-1.0-12.el7.x86_64.rpm
+         state: present
+      args:
+         disable_gpg_check: yes
+    - name: 8. "skt-critical" RPM Install
+      shell: rpm -Uvh /ansible/skt-critical-3.0-11.el8.x86_64.rpm --force
+      args:
+         warn: false
+    - name: 9-1. HP RPM Install(ssacli, ilorest, amsd)
+      yum:
+         name: "{{ item }}"
+         state: present
+      args:
+         disable_gpg_check: yes
+      loop:
+         - /ansible/ssacli-5.20-8.0.x86_64.rpm
+         - /ansible/ilorest-3.3.0-78.x86_64.rpm
+         - /ansible/amsd-2.5.0-1675.24.rhel8.x86_64.rpm
+      when: ansible_system_vendor == "HP" or "HPE"
+    - name: 9-2. DELL RPM Install(omsa)
+      yum:
+         name: /ansible/stress-1.0.4-24.el8.x86_64.rpm
+         state: present
+      args:
+         disable_gpg_check: yes
+      when: ansible_system_vendor == "DELL"
+    - name: 10. "rmNeAgent" shell execute
+      script: /ansible/rmNeAgent-linux.191202.sh
+    - name: 11. "sguser" shell execute
+      script: /ansible/sguser_linux_181012_1.sh
+    - name: 12. "smartuser" shell execute
+      script: /ansible/smartuser-linux.191202.sh
+    - name: 13. Change file mode bits
+      shell: "{{ item }}"
+      with_items:
+         - chown root.wheel /bin/su
+         - chmod 4750 /bin/su
+         - chmod -s /usr/bin/newgrp
+        # - chmod -s /usr/bin/at
+         - chmod -s /sbin/unix_chkpwd
+         - chmod 0640 /etc/rsyslog.conf
+         - chmod 0440 /etc/sudoers.d/sguser
+         - chmod 0440 /etc/sudoers.d/smartuser
+         - chmod -s /usr/bin/pkexec
+      args:
+         warn: false
+    - name: 14. "datainfo" shell execute
+      script: "{{ item }}"
+      with_items:
+        # - md5sum /ansible/sims_cert_install_20211019.sh
+         - /ansible/sims_cert_install_20211019.sh install
+    - name: 15. Create sudoers file
+      file:
+         path: "{{ item.file }}"
+         state: touch
+         owner: root
+         group: root
+         mode: 0440
+      with_items: "{{ sudoers }}"
+    - name: 16. Edit sudoers file
+      lineinfile:
+         path: "{{ item.file }}"
+         line: "{{ item.line }}"
+         state: present
+      with_items: "{{ sudoers }}"
+    - name: 17. User Settings
+      command: "{{ item }}"
+      with_items:
+         - chage -E -1 -m 0 -M 99999 tcore
+         - chage -E -1 -m 0 -M 99999 ansible
+         #- passwd -l root
+    - name: 18. "sshd_config" file settings
+      copy:
+         src: /etc/ssh/sshd_config
+         dest: /etc/ssh/sshd_config
+         owner: root
+         group: root
+         mode: 0600
+         backup: yes
+    - name: 19. Sysstat settings
+      copy:
+         src: /etc/cron.d/sysstat
+         dest: /etc/cron.d/sysstat
+         owner: root
+         group: root
+         mode: 0600
+         backup: yes
+    - name: 20. HandlePowerKey setting
+      copy:
+         src: /etc/systemd/logind.conf
+         dest: /etc/systemd/logind.conf
+         owner: root
+         group: root
+         mode: 0644
+         backup: yes
+    - name: 21. pam.d policy settings
+      copy:
+         src: "{{ item }}"
+         dest: /etc/pam.d/
+         owner: root
+         group: root
+         mode: 0644
+         backup: yes
+      with_fileglob:
+         - /etc/pam.d/system-auth
+         - /etc/pam.d/password-auth
+         - /etc/pam.d/su
+    - name: 22. Profile settings
+      lineinfile:
+         path: /etc/profile
+         line: "{{ item }}"
+         state: present
+      with_items:
+         - "### Configured by Ansible ###"
+         - umask 022
+         - export HISTTIMEFORMAT="%F %T  "
+         - export HISTSIZE=5000
+         - TMOUT=3600
+         - export TMOUT
+    - name: 23. "bashrc" file settings
+      lineinfile:
+         path: /etc/bashrc
+         line: "{{ item }}"
+         state: present
+      with_items:
+         - "### Configured by Ansible ###"
+         - umask 022
+         - export HISTTIMEFORMAT="%F %T  "
+         - export HISTSIZE=5000
+         - TMOUT=3600
+         - export TMOUT
+    - name: 24. "login.defs" file settings
+      copy:
+         src: /etc/login.defs
+         dest: /etc/login.defs
+         owner: root
+         group: root
+         mode: 0644
+         backup: yes
+    - name: 25. "rsyslog.conf" file settings
+      copy:
+         src: /etc/rsyslog.conf
+         dest: /etc/rsyslog.conf
+         owner: root
+         group: root
+         mode: 0640
+         backup: yes
+    - name: 26. "limits.conf" file settings
+      copy:
+         src: /etc/security/limits.conf
+         dest: /etc/security/limits.conf
+         owner: root
+         group: root
+         mode: 0644
+         backup: yes
+    - name: 27. "20-nproc.conf" file settings
+      copy:
+         src: /etc/security/limits.d/20-nproc.conf
+         dest: /etc/security/limits.d/20-nproc.conf
+         owner: root
+         group: root
+         mode: 0644
+         backup: yes
+    - name: 28. Logrotate setting
+      command: "{{ item }}"
+      with_items:
+         - sed -i "s/^rotate 4/rotate 32/" /etc/logrotate.conf
+      args:
+         warn: false
+#    - name: 29. NTP setting
+#      copy:
+#         src: /etc/chrony.conf
+#         dest: /etc/chrony.conf
+#         owner: root
+#         group: root
+#         mode: 0644
+#         backup: yes
+    - name: 30. HWClock & Local Time setting
+      command: "{{ item }}"
+      with_items:
+#         - systemctl restart chronyd
+         - ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+         - hwclock -w
+      args:
+         warn: false
+    - name: 31. Temprature Monitoring Cron Job setting
+      copy:
+         src: /var/spool/cron/suser
+         dest: /var/spool/cron/suser
+         owner: suser
+         group: suser
+         mode: 0600
+         backup: yes
+      when: ansible_system_vendor == "HP" or "HPE"
+    - name: 32. Temprature Monitoring File Copy & IP Settings
+      command: "{{ item }}"
+      with_items:
+         - mkdir -p /home/suser/BRNOC/LOG
+#         - cp /ansible/qryTemperatureILO.sh /home/suser/BRNOC/qryTemperatureILO.sh
+#         - chmod 744  /home/suser/BRNOC/qryTemperatureILO.sh
+#         - chown -Rf suser:suser /home/suser/
+#         - sh /ansible/setTempIP.sh
+#         - chcon -t user_cron_spool_t -u unconfined_u /var/spool/cron/suser
+      args:
+         warn: false
+      when: ansible_system_vendor == "HP" or "HPE"
+    - name: 33. Additional Settings
+      command: "{{ item }}"
+      with_items:
+         - systemctl mask ctrl-alt-del.target
+         - systemctl start sysstat
+         - systemctl enable sysstat
+#         - systemctl start ntpd
+#         - systemctl enable ntpd
+#         - systemctl stop chronyd
+#         - systemctl disable chronyd
+#         - systemctl stop postfix
+#         - systemctl disable postfix
+         - systemctl stop firewalld
+         - systemctl disable firewalld
+#         - systemctl stop rpcbind
+#         - systemctl disable rpcbind
+#         - systemctl stop rpcbind.socket
+#         - systemctl disable rpcbind.socket
+      args:
+         warn: false
+    #- name: 33. systemctl settings
+    #  systemd:
+    #     name: "{{ item }}"
+    #     state: stopped
+    #     enabled: no
+    #  loop:
+    #     - abrtd
+    #     - postfix
+    #     - NetworkManager
+    #     - rpcbind
+    #     - autofs
+    #     - nfs-lock
+    #     - nfslock
+    #     - rpc-statd
+    #     - ntpd
+#    when:
+#      - uptime_result.stdout|int < uptime_limit
+#      - cpu_result.stdout|int > cpu_idle_limit
+#      - mem_result.stdout|int < mem_limit
+#      - ipaddr_result.stdout|int == ipaddr_limit
+#      - qemu_result.stdout|int == qemu_limit
+ 

@@ -1,0 +1,31 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: cnaps
+  name: cnf-cnaps-worker-tuning
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      machineconfiguration.openshift.io/role: cnpas
+  kubeletConfig:
+    cpuManagerPolicy: "static"
+    cpuManagerReconcilePeriod: "5s"
+     reservedSystemCPUs: "0-1,28-29,56-57,84-85"
+    memoryManagerPolicy: "Static"
+    evictionHard:
+      memory.available: "100Mi"
+      imagefs.available: "5%"
+      nodefs.available: "5%"
+      nodefs.inodesFree: "5%"
+    reservedMemory:
+      - numaNode: 0
+        limits:
+          memory: "7200Mi"
+      - numaNode: 1
+        limits:
+          memory: "7200Mi"
+    systemReserved:
+      memory: "14300Mi"
+    topologyManagerPolicy: "single-numa-node"
+    topologyManagerScope: "pod"

@@ -1,0 +1,50 @@
+---
+- name: Rollback kernel args and hugepages service
+  hosts: new_workers
+  become: yes  # This allows Ansible to run commands as sudo
+
+  tasks:
+    - name: Rollback kernel args
+      command: grubby --update-kernel=ALL --remove-args="default_hugepagesz=2M hugepagesz=2M transparent_hugepage=never intel_idle.max_cstate=0 processor.max_cstate=1 intel_iommu=on iommu=pt skew_tick=1 intel_pstate=disable nosoftlockup"
+
+    - name: Run 'dracut -f' command
+      command: dracut -f
+      ignore_errors: yes
+      delay : 300
+
+    - name: Stop the hugepage service
+      systemd:
+        name: hugepages-2M.service
+        state: stopped
+      ignore_errors: yes  # This is to prevent errors if the service is not already running
+
+    - name: Disable the hugepage service on startup
+      systemd:
+        name: hugepages-2M.service
+        enabled: no
+
+    - name: Remove hugepages-2M.service
+      file:
+        path: /usr/lib/systemd/system/hugepages-2M.service
+        state: absent
+
+    - name: Remove hugepages-2M.sh
+      file:
+        path: /usr/lib/systemd/hugepages-2M.sh
+        state: absent
+
+    - name: Reboot the server
+      ansible.builtin.reboot:
+        reboot_timeout: 300
+      async: 0
+      poll: 0
+      ignore_errors: yes
+
+    - name: Wait for server to come up
+      ansible.builtin.wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22  # SSH port
+        state: started
+        timeout: 600
+      delegate_to: localhost
+

@@ -1,0 +1,4 @@
+---
+# defaults file for my-role
+
+service_title: "Apache Web Server"

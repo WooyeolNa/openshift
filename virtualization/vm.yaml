@@ -1,0 +1,146 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  annotations:
+    kubemacpool.io/transaction-timestamp: "2025-08-18T12:30:32.657111379Z"
+    kubevirt.io/latest-observed-api-version: v1
+    kubevirt.io/storage-observed-api-version: v1
+    vm.kubevirt.io/validations: |
+      [
+        {
+          "name": "minimal-required-memory",
+          "path": "jsonpath::.spec.domain.memory.guest",
+          "rule": "integer",
+          "message": "This VM requires more memory.",
+          "min": 1610612736
+        }
+      ]
+  creationTimestamp: "2025-08-18T12:28:50Z"
+  finalizers:
+  - kubevirt.io/virtualMachineControllerFinalize
+  generation: 2
+  labels:
+    app: test-rhel9-vm
+    kubevirt.io/dynamic-credentials-support: "true"
+    vm.kubevirt.io/template: rhel9-server-small
+    vm.kubevirt.io/template.namespace: openshift
+    vm.kubevirt.io/template.revision: "1"
+    vm.kubevirt.io/template.version: v0.29.4
+  name: test-rhel9-vm
+  namespace: test
+  resourceVersion: "127180972"
+  uid: 9a003adb-40a5-42f7-ae2b-9d49b107669b
+spec:
+  dataVolumeTemplates:
+  - apiVersion: cdi.kubevirt.io/v1beta1
+    kind: DataVolume
+    metadata:
+      creationTimestamp: null
+      name: test-rhel9-vm
+    spec:
+      source:
+        pvc:
+          name: rhel9.4
+          namespace: test
+      storage:
+        resources:
+          requests:
+            storage: "34087042032"
+  running: true
+  template:
+    metadata:
+      annotations:
+        vm.kubevirt.io/flavor: small
+        vm.kubevirt.io/os: rhel9
+        vm.kubevirt.io/workload: server
+      creationTimestamp: null
+      labels:
+        kubevirt.io/domain: test-rhel9-vm
+        kubevirt.io/size: small
+        network.kubevirt.io/headlessService: headless
+    spec:
+      architecture: amd64
+      domain:
+        cpu:
+          cores: 1
+          sockets: 1
+          threads: 1
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: rootdisk
+          - disk:
+              bus: virtio
+            name: cloudinitdisk
+          interfaces:
+          - macAddress: 02:0d:e5:00:00:04
+            masquerade: {}
+            model: virtio
+            name: default
+          logSerialConsole: false
+          rng: {}
+        features:
+          acpi: {}
+          smm:
+            enabled: true
+        firmware:
+          bootloader:
+            efi: {}
+        machine:
+          type: pc-q35-rhel9.4.0
+        memory:
+          guest: 2Gi
+        resources: {}
+      networks:
+      - name: default
+        pod: {}
+      terminationGracePeriodSeconds: 180
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/infra
+        operator: Exists
+      volumes:
+      - dataVolume:
+          name: test-rhel9-vm
+        name: rootdisk
+      - cloudInitNoCloud:
+          userData: |-
+            #cloud-config
+            user: cloud-user
+            password: kqny-hylx-b2wu
+            chpasswd: { expire: False }
+        name: cloudinitdisk
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2025-08-18T12:32:24Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: null
+    message: All of the VMI's DVs are bound and not running
+    reason: AllDVsReady
+    status: "True"
+    type: DataVolumesReady
+  - lastProbeTime: null
+    lastTransitionTime: null
+    message: 'cannot migrate VMI: PVC test-rhel9-vm is not shared, live migration
+      requires that all PVCs must be shared (using ReadWriteMany access mode)'
+    reason: DisksNotLiveMigratable
+    status: "False"
+    type: LiveMigratable
+  created: true
+  desiredGeneration: 2
+  observedGeneration: 2
+  printableStatus: Running
+  ready: true
+  runStrategy: Always
+  volumeSnapshotStatuses:
+  - enabled: false
+    name: rootdisk
+    reason: 'No VolumeSnapshotClass: Volume snapshots are not configured for this
+      StorageClass [hostpath-sc] [rootdisk]'
+  - enabled: false
+    name: cloudinitdisk
+    reason: Snapshot is not supported for this volumeSource type [cloudinitdisk]

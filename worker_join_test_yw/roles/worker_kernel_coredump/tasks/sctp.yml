@@ -1,0 +1,20 @@
+---
+- name: Enable SCTP - unblacklist and load at boot
+  when: enable_sctp | default(false) | bool
+  block:
+    - name: Comment out blacklist sctp if present
+      ansible.builtin.replace:
+        path: /etc/modprobe.d/sctp-blacklist.conf
+        regexp: '^(blacklist\s+sctp)'
+        replace: '#\1'
+      ignore_errors: true
+
+    - name: Write modules-load file for sctp
+      ansible.builtin.copy:
+        dest: /etc/modules-load.d/sctp-load.conf
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          sctp
+

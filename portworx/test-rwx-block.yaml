@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: shared-test-block-pod1
+spec:
+  containers:
+  - name: busybox
+    image: registry.opas-tb.sktelecom.com:5000/test/busybox:latest
+    command: ["sh", "-c", "echo 'Hello from Pod1' >> /mnt/shared/test.log; sleep 3600"]
+    volumeMounts:
+    - name: shared-vol
+      mountPath: /mnt/shared
+  volumes:
+  - name: shared-vol
+    persistentVolumeClaim:
+      claimName: data-test-busybox-0  # 기존 PVC 이름 지정
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: shared-test-block-pod2
+spec:
+  containers:
+  - name: busybox
+    image: registry.opas-tb.sktelecom.com:5000/test/busybox:latest
+    command: ["sh", "-c", "echo 'Hello from Pod2' >> /mnt/shared/test.log; sleep 3600"]
+    volumeMounts:
+    - name: shared-vol
+      mountPath: /mnt/shared
+  volumes:
+  - name: shared-vol
+    persistentVolumeClaim:
+      claimName: data-test-busybox-0  # 동일한 PVC 이름 지정

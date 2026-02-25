@@ -1,0 +1,36 @@
+---
+- name: Tune systemd-coredump sizes
+  when: enable_coredump_tuning | default(false) | bool
+  block:
+    - name: Ensure ProcessSizeMax
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/coredump.conf
+        regexp: '^\s*ProcessSizeMax='
+        line: 'ProcessSizeMax=20G'
+        create: true
+
+    - name: Ensure ExternalSizeMax
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/coredump.conf
+        regexp: '^\s*ExternalSizeMax='
+        line: 'ExternalSizeMax=20G'
+        create: true
+
+    - name: Ensure JournalSizeMax
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/coredump.conf
+        regexp: '^\s*JournalSizeMax='
+        line: 'JournalSizeMax=20G'
+        create: true
+
+    - name: Ensure tmpfiles rule for coredump retention
+      ansible.builtin.lineinfile:
+        path: /etc/tmpfiles.d/core.conf
+        regexp: '^\s*d\s+/var/lib/systemd/coredump\s+0755\s+root\s+root\s+14d'
+        line: 'd /var/lib/systemd/coredump 0755 root root 14d'
+        create: true
+
+    - name: Reload systemd daemon (just in case)
+      ansible.builtin.systemd:
+        daemon_reload: true
+

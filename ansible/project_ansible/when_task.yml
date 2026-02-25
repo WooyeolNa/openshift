@@ -1,0 +1,10 @@
+---
+
+- hosts: localhost
+  vars:
+    run_my_task: false
+
+  tasks:
+    - name: echo message
+      ansible.builtin.shell: "echo test"
+      when: run_my_task

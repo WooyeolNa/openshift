@@ -1,0 +1,67 @@
+apiVersion: v1
+baseDomain: skt.local
+compute:
+- hyperthreading: Enabled
+  name: worker
+  replicas: 0
+controlPlane:
+  hyperthreading: Enabled
+  name: master
+  replicas: 3
+metadata:
+  name: ocp13
+networking:
+  clusterNetwork:
+  - cidr: 192.168.0.0/16
+    hostPrefix: 24
+  networkType: OVNKubernetes
+  serviceNetwork:
+  - 40.30.0.0/16
+platform:
+  none: {}
+fips: false
+pullSecret: '{ "auths": {"snsu-registry.ocp.skt.local:5000": {"auth": "YWRtaW46U2t0ISNAMjM0"},"snsu-registry.ocp.skt.local:5014": {"auth": "YWRtaW46U2t0ISNAMjM0"},"snsu-registry.ocp.skt.local:5016": {"auth": "YWRtaW46U2t0ISNAMjM0"}}}'
+sshKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDMw6+1PeGeRs672rvsv6KHOjVPJqcxCabmTI+rTe64dH/8x9e0d5dAwC60/LMxCV/kj3h08imSKdbMr4mLKEcBPguUFC/rty1/rvo1QbP+dGGm/B7nRo4S9isib5EXYOITdAlUC/wTJsk3TzmKPMMwRfwnZPbeuBVEfKe1U97fJeC9caUcb82vfMZWuIaQG2gfNC5WMK2x+S//ec0gPZerwnu/1gJvZRJTpN+HppQGCfH2Nn17+y7iQzuM+d22HPPqwupKBGJFa9burD3eeOo1dGZAVGHs/KfbvynOeu105LnejBm2UAlpzSUBT3kYSB+2fSuR7iWyOoecXTOeiJgBUEcI1YBgxuixr2bcI60Oz7Oi3UxK6eenmy9isv9a5c/C2dxtOHNhfn/NmnZHhP/KD6dr2GV5qrnGHZxG4dPalxyu04VoCba4po1eSDaRml/QNbBAUOAG4KFyvvL6HV/jQwcVhTcSFUmO4Bqkh3ltevLNCk8dgoGhddKM/F04lPrzDEsT3LGuhtFTBv51FywbgjTmv4/uko7fRXrOgcbYiuKhdTlZ4CPY0S+dqC4KeTMpuCCgsRLIDpgYj/OxvJsoLEMm51Ia70/4oxcN1xKbmxiRNfl2czt0g0ZbyQQeSpblk0yJWQEKMIgwVbOhnbcpbsaChuAf78YLeA/3pcKrQQ== core@snsu-ims13b-bastion1.ocp13.skt.local'
+imageContentSources:
+- mirrors:
+  - snsu-registry.ocp.skt.local:5016/ocp4/openshift4
+  source: quay.io/openshift-release-dev/ocp-release
+- mirrors:
+  - snsu-registry.ocp.skt.local:5016/ocp4/openshift4
+  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+additionalTrustBundle: |
+  -----BEGIN CERTIFICATE-----
+  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
+  MVJp9CtpR/FOnj6Njtr6upWEiQ==
+  -----END CERTIFICATE-----

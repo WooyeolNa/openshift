@@ -1,0 +1,10 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"storage.k8s.io/v1","kind":"StorageClass","metadata":{"annotations":{},"name":"test-monitoring-prometheus-sc"},"provisioner":"kubernetes.io/no-provisioner","reclaimPolicy":"Delete","volumeBindingMode":"WaitForFirstConsumer"}
+  name: test-bss-sc
+provisioner: kubernetes.io/no-provisioner
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer

@@ -1,0 +1,40 @@
+---
+- name: HP Proliant DL360 Gen10 F/W Upgrade
+  hosts: all
+  become: true
+  tasks:
+    - name: FW Upgrade
+      shell: "{{ item }}"
+      with_items:
+         - curl http://60.15.91.21:8099/ansible.repo -o /etc/yum.repos.d/ansible.repo
+         - yum install -y expect
+         - curl http://60.15.91.21:8099/ssacli-4.21-7.0.x86_64.rpm -o ~/ssacli-4.21-7.0.x86_64.rpm
+         - rpm -Uvh ssacli-4.21-7.0.x86_64.rpm
+         - curl http://60.15.91.21:8099/HP/firmware-ilo5-1.46-1.1.x86_64.rpm -o ~/firmware-ilo5-1.46-1.1.x86_64.rpm
+         - curl http://60.15.91.21:8099/HP/firmware-ilo5-2.55-1.1.x86_64.rpm -o ~/firmware-ilo5-2.55-1.1.x86_64.rpm
+         - curl http://60.15.91.21:8099/HP/firmware-nic-intel-1.21.6-1.1.x86_64.rpm -o ~/firmware-nic-intel-1.21.6-1.1.x86_64.rpm
+         - curl http://60.15.91.21:8099/HP/firmware-smartarray-f7c07bdbbd-4.11-1.1.x86_64.rpm -o ~/firmware-smartarray-f7c07bdbbd-4.11-1.1.x86_64.rpm
+         - curl http://60.15.91.21:8099/HP/firmware-system-u32-2.54_2021_09_03-2.1.x86_64.rpm -o ~/firmware-system-u32-2.54_2021_09_03-2.1.x86_64.rpm
+         - curl http://60.15.91.21:8099/HP/700Series_NVMUpdatePackage_v8_40_Linux.tar.gz -o ~/700Series_NVMUpdatePackage_v8_40_Linux.tar.gz
+         - curl http://60.15.91.21:8099/HP/BIOS_FW.sh -o ~/BIOS_FW.sh
+         - curl http://60.15.91.21:8099/HP/iLO_1.46_FW.sh -o ~/iLO_1.46_FW.sh
+         - curl http://60.15.91.21:8099/HP/iLO_2.55_FW.sh -o ~/iLO_2.55_FW.sh
+         - curl http://60.15.91.21:8099/HP/SmartArray_FW.sh -o ~/SmartArray_FW.sh
+         - curl http://60.15.91.21:8099/HP/10G_NIC_FW.sh -o ~/10G_NIC_FW.sh
+         - curl http://60.15.91.21:8099/HP/25G_NIC_FW.sh -o ~/25G_NIC_FW.sh
+         - chmod +x *FW*
+         - rpm -Uvh ~/firmware-system-u32-2.54_2021_09_03-2.1.x86_64.rpm;
+         - /root/BIOS_FW.sh
+         - rpm -Uvh ~/firmware-ilo5-1.46-1.1.x86_64.rpm;
+         - /root/iLO_1.46_FW.sh
+         - rpm -Uvh ~/firmware-ilo5-2.55-1.1.x86_64.rpm;
+         - /root/iLO_2.55_FW.sh
+         - rpm -Uvh ~/firmware-smartarray-f7c07bdbbd-4.11-1.1.x86_64.rpm;
+         - /root/SmartArray_FW.sh
+         - rpm -Uvh ~/firmware-nic-intel-1.21.6-1.1.x86_64.rpm;
+         - /root/10G_NIC_FW.sh
+         - tar xvf ~/700Series_NVMUpdatePackage_v8_40_Linux.tar.gz;
+         - /root/25G_NIC_FW.sh
+      args:
+         warn: false    
+

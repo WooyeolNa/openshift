@@ -1,0 +1,20 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: samsung-sc-rwo
+provisioner: csi.hpe.com
+parameters:
+  csi.storage.k8s.io/fstype: xfs
+  csi.storage.k8s.io/controller-expand-secret-name: 3par-secret
+  csi.storage.k8s.io/controller-expand-secret-namespace: hpe-csi-driver
+  csi.storage.k8s.io/controller-publish-secret-name: 3par-secret
+  csi.storage.k8s.io/controller-publish-secret-namespace: hpe-csi-driver
+  csi.storage.k8s.io/node-publish-secret-name: 3par-secret
+  csi.storage.k8s.io/node-publish-secret-namespace: hpe-csi-driver
+  csi.storage.k8s.io/node-stage-secret-name: 3par-secret
+  csi.storage.k8s.io/node-stage-secret-namespace: hpe-csi-driver
+  csi.storage.k8s.io/provisioner-secret-name: 3par-secret
+  csi.storage.k8s.io/provisioner-secret-namespace: hpe-csi-driver
+  accessProtocol: iscsi
+reclaimPolicy: Delete
+allowVolumeExpansion: true

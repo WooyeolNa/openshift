@@ -1,0 +1,32 @@
+---
+# tasks file for apache
+
+- name: httpd install
+  yum:
+    name: httpd
+    state: present
+
+- name: httpd start
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: firewalld start
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: firewalld modify
+  firewalld:
+    service: http
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: create temp
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    setype: httpd_sys_content_t

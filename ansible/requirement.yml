@@ -1,0 +1,6 @@
+---
+
+collections:
+  - name: /home/park/ansible/mycollections/ansible-posix-1.5.1.tar.gz  
+  - name: /home/park/ansible/mycollections/community-general-5.4.0.tar.gz  
+  - name: /home/park/ansible/mycollections/redhat-rhel_system_roles-1.15.1.tar.gz

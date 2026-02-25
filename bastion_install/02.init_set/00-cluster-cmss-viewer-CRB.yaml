@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: skt:cmss-viewer
+  labels:
+    user: cmss-viewer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-cmss-viewer
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: cmss-viewer

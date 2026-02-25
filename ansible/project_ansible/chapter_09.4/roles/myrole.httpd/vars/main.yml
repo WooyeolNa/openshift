@@ -1,0 +1,7 @@
+---
+# vars file for myrole.httpd
+
+httpd:_service:
+  - httpd
+  - yum-utils
+repo_dir: /repo

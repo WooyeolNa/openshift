@@ -1,0 +1,6 @@
+---
+
+- name: newrole
+  hosts: all
+  roles:
+    - apache

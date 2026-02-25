@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: master-pv1
+  labels:
+    logging: ""
+spec:
+  storageClassName: logging-sc
+  capacity:
+    storage: 200Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /home/core/logging
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - bdtb-sa02a-ma1.ocp02.skt.local
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: master-pv2
+  labels:
+    logging: ""
+spec:
+  storageClassName: logging-sc
+  capacity:
+    storage: 200Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /home/core/logging
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - bdtb-sa02a-ma2.ocp02.skt.local
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: master-pv3
+  labels:
+    logging: ""
+spec:
+  storageClassName: logging-sc
+  capacity:
+    storage: 200Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /home/core/logging
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - bdtb-sa02a-ma3.ocp02.skt.local

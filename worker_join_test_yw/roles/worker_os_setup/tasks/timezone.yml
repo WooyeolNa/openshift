@@ -1,0 +1,10 @@
+---
+- name: Get current timezone
+  ansible.builtin.command: timedatectl show -p Timezone --value
+  register: _current_tz
+  changed_when: false
+
+- name: Set timezone to Asia/Seoul if needed
+  ansible.builtin.command: timedatectl set-timezone Asia/Seoul
+  when: _current_tz.stdout != 'Asia/Seoul'
+

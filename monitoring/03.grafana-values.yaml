@@ -1,0 +1,56 @@
+replicaCount: 1
+
+adminUser: admin
+adminPassword: admin
+
+env:
+  GF_SERVER_ROOT_URL: "https://grafana-monitoring.apps.devocp1-416.sktelecom.com"
+
+grafana.ini:
+  server:
+    root_url: "%(env:GF_SERVER_ROOT_URL)%"
+    serve_from_sub_path: true
+  update.check:
+    enabled: false
+
+plugins: []
+
+securityContext:
+  runAsUser: 1000850000
+  runAsGroup: 1000850000
+  fsGroup: 1000850000
+
+containerPort: 3000
+
+service:
+  type: ClusterIP
+  port: 3080
+  targetPort: 3000
+  name: web
+
+resources: {}
+
+persistence:
+  enabled: false
+
+serviceAccount:
+  create: true
+  name: grafana
+
+rbac:
+  create: true
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: https://thanos-querier.openshift-monitoring.svc:9091
+        isDefault: true
+        jsonData:
+          tlsSkipVerify: true
+          httpHeaderName1: "Authorization"
+        secureJsonData:
+          httpHeaderValue1: "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjhMckJyQ0hUZDRpTFZ0V21kYUNwSjhRRDZkS2N3cEItcnhTZkQ1UzZLTVkifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjIl0sImV4cCI6MTc0OTAwNDg1OSwiaWF0IjoxNzQ5MDAxMjU5LCJpc3MiOiJodHRwczovL2t1YmVybmV0ZXMuZGVmYXVsdC5zdmMiLCJrdWJlcm5ldGVzLmlvIjp7Im5hbWVzcGFjZSI6Im1vbml0b3JpbmciLCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiZ3JhZmFuYSIsInVpZCI6IjFjYWNhNTEyLTA5Y2QtNDE0My1hMGZhLWU0MzM1MGZhMzAwMCJ9fSwibmJmIjoxNzQ5MDAxMjU5LCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6bW9uaXRvcmluZzpncmFmYW5hIn0.owOTj0ssydEjXYgg7JEqMW9Tg0Y1rSpn2nxsK1sUT_0j2O8PUimX1j8pxuS5ANNoMFzHqdyMvojk3D4Gbb8_2jnfWfC9ftXl0042welp1jyyAd0TkNBd-eVsBXAeDR7eywodNH2m8JV9MZFeq_BdMYmrPa-s9PeZyCU896r4jZ9SSzKscbjwfbVgXmMsFXHkEqlS43rnX_5Sd4NHCTJoJlR004rTsTjxj6NqqKK6tsg8TIIw9cjKmxoU8NlogTBCKonoSyBbliU2pB8ngak7Hp913u4_ffOD_-YiUV2Dt0RF02k5s0ZT3WyT5f4XlTChQNGSrpjLlhyxQB89bdShhktDXcM48QiemGhJbqGsuhAc9v7pSfjI0OK6BkWN4jt-tGIN4DZc2hjNR0GIj9TvGg95vjs0NgzeozwfoVNR-jQJnsGKtIW4jYfd5iNOLCHCGt_XFWThz3c93_biDED3o24hlr7zXdNrypRFKc4lx0ExFnbX6GsTplAGRHv0-WWOlBAGoiDK3l5SdL7YaXhmwHjpHspI2Lsk7GIgGWRJOfbI_Gw4596ptVIJwdF6oXrKuOaV6H7sq9h6j9qZAXQSx95CXG7LWPYrnxlMjX6D96x-KsZ9I7pwUJGMAT2_Q-C8hQn-JvY91tMuHMoDz0k0R2IU-x9WavjvnU3AfjVWLAs"

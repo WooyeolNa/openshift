@@ -1,0 +1,25 @@
+---
+- name: Ensure resolv.conf has bastion_v_ip
+  ansible.builtin.lineinfile:
+    path: /etc/resolv.conf
+    line: "nameserver {{ bastion_v_ip }}"
+    state: present
+    insertafter: EOF
+  when: bastion_v_ip is defined
+
+- name: Ensure resolv.conf has bastion_2_ip
+  ansible.builtin.lineinfile:
+    path: /etc/resolv.conf
+    line: "nameserver {{ bastion_2_ip }}"
+    state: present
+    insertafter: EOF
+  when: bastion_2_ip is defined
+
+- name: Ensure resolv.conf has bastion_1_ip
+  ansible.builtin.lineinfile:
+    path: /etc/resolv.conf
+    line: "nameserver {{ bastion_1_ip }}"
+    state: present
+    insertafter: EOF
+  when: bastion_1_ip is defined
+

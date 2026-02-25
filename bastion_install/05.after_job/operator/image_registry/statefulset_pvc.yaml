@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pv-test
+  namespace: test
+spec:
+  selector:
+    matchLabels:
+      pv-test: test
+  replicas: 29
+  template:
+    metadata:
+      labels:
+        pv-test: test
+    spec:
+      containers:
+      - name: sample
+        image: image-registry.openshift-image-registry.svc:5000/test-images/centos7:7.9_v2
+        volumeMounts:
+        - mountPath: "/liveshell_log"
+          name: pv-test
+  volumeClaimTemplates:
+  - metadata:
+      name: pv-test
+      labels:
+        test: ""
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: samsung-sc-rwo
+      resources:
+        requests:
+          storage: 1Gi

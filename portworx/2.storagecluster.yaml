@@ -1,0 +1,31 @@
+kind: StorageCluster
+apiVersion: core.libopenstorage.org/v1
+metadata:
+  name: px-cluster
+  namespace: portworx
+  annotations:
+    portworx.io/is-openshift: "true"
+    portworx.io/portworx-proxy : "false"
+spec:
+  image: registry.opas-tb.sktelecom.com:5000/portworx/oci-monitor:3.5.0
+  imagePullPolicy: Always
+  kvdb:
+    internal: true
+  storage:
+    useAll: true
+  secretsProvider: k8s
+  stork:
+    enabled: true
+    args:
+      webhook-controller: "true"
+  autopilot:
+    enabled: true
+  csi:
+    enabled: true
+  monitoring:
+    telemetry:
+      enabled: false
+    prometheus:
+      enabled: true
+      exportMetrics: true
+

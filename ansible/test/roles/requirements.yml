@@ -1,0 +1,7 @@
+---
+
+- name: balancer
+  src: http://redhat.example.com/materials/haproxy.tar
+
+- name: phpinfo
+  src: http://redhat.example.com/materials/phpinfo.tar

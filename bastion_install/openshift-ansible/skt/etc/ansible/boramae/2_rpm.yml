@@ -1,0 +1,58 @@
+---
+- name: OS-init(S/W install & Configration settings)
+  hosts: all
+  become: true
+  serial: 1
+  vars:
+    uptime_limit : 20
+    cpu_idle_limit : 80
+    mem_limit : 15
+    ipaddr_limit : 1
+    qemu_limit : 0
+    timestamp: "{{lookup('pipe', 'date +%Y%m%d')}}"
+  tasks:
+  - name: OS Configuraions Automation ###
+    block:
+    - name: 4. RPM & Script file copy
+      copy:
+         src: "{{ item }}"
+         dest: /ansible/
+         owner: root
+         group: root
+         mode: 0744
+      with_fileglob:
+         - /ansible/files/*
+    - name: 7. "skt-osbackup" RPM Install
+      yum:
+         name: /ansible/skt-osbackup-1.0-12.el7.x86_64.rpm
+         state: present
+      args:
+         disable_gpg_check: yes
+#    - name: 8. "skt-critical" RPM Install
+#      shell: rpm -Uvh /ansible/skt-critical-3.0-11.el8.x86_64.rpm --force
+#      args:
+#         warn: false
+    - name: 9-1. HP RPM Install(ssacli, ilorest, amsd)
+      yum:
+         name: "{{ item }}"
+         state: present
+      args:
+         disable_gpg_check: yes
+      loop:
+         - /ansible/ssacli-5.20-8.0.x86_64.rpm
+         - /ansible/ilorest-3.3.0-78.x86_64.rpm
+         - /ansible/amsd-2.5.0-1675.24.rhel8.x86_64.rpm
+      when: ansible_system_vendor == "HP" or "HPE"
+    - name: 9-2. DELL RPM Install(omsa)
+      yum:
+         name: /ansible/stress-1.0.4-24.el8.x86_64.rpm
+         state: present
+      args:
+         disable_gpg_check: yes
+      when: ansible_system_vendor == "DELL"
+    - name: 10. "rmNeAgent" shell execute
+      script: /ansible/rmNeAgent-linux.191202.sh
+    - name: 11. "sguser" shell execute
+      script: /ansible/sguser_linux_181012_1.sh
+    - name: 12. "smartuser" shell execute
+      script: /ansible/smartuser-linux.191202.sh

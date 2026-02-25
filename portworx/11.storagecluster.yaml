@@ -1,0 +1,35 @@
+apiVersion: core.libopenstorage.org/v1
+kind: StorageCluster
+metadata:
+  name: px-cluster
+  namespace: kube-system
+  annotations:
+    portworx.io/is-openshift: "true"
+spec:
+  image: registry.opas-tb.sktelecom.com:5000/portworx/oci-monitor:3.5.0
+  imagePullPolicy: IfNotPresent
+  kvdb:
+    internal: true
+  storage:
+    useAll: true
+  secretsProvider: k8s
+  placement:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: portworx.io/node-type
+            operator: In
+            values:
+            - storage
+  csi:
+    enabled: true
+  stork:
+    enabled: true
+  autopilot:
+    enabled: true
+  monitoring:
+    telemetry:
+      enabled: false
+    prometheus:
+      enabled: true

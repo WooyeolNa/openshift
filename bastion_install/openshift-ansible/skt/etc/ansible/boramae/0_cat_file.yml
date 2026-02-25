@@ -1,0 +1,29 @@
+---
+- name: cat
+  hosts: all
+  become: true
+  serial: 5
+  gather_facts: no
+  tasks:
+#    - name: 1. Pre-Check File Copy
+#      copy:
+#         src: /ansible/files/pre-check2.sh
+#         dest: /ansible/
+#         owner: root
+#         group: root
+#         mode: 0744
+#    - name: 2. Execure Pre-Check Shell
+#      shell: "{{ item }}"
+#      with_items:
+#         - /ansible/pre-check2.sh > /ansible/pre_check_results.$HOSTNAME.`date +%Y%m%d`
+#         - /ansible/pre-check2.sh > /ansible/pre_check_results
+    - name: Cat results
+      command: "{{ item }}"
+      with_items:
+         - cat /home/suser/BRNOC/qryTemperatureILO.sh 
+         #- cat /etc/selinux/config 
+      register: cat_results
+    - name: Print result variable
+      debug:
+        msg: "{{ cat_results.stdout_lines }}"
+

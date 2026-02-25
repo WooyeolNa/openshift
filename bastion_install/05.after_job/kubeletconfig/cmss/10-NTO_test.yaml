@@ -1,0 +1,28 @@
+apiVersion: tuned.openshift.io/v1
+kind: Tuned
+metadata:
+  name: aisfm-worker-tuning
+  namespace: openshift-cluster-node-tuning-operator
+spec:
+  profile:
+  - name: aisfm-worker-kernel-profile
+    data: |
+      [main]
+      summary=Kernel and network tuning for aisfm worker
+      include=openshift-node
+
+      [sysctl]
+      net.core.rmem_max = 16777216
+      net.core.wmem_max = 16777216
+      net.core.netdev_max_backlog = 8192
+      net.core.somaxconn = 4096
+      net.ipv4.tcp_rmem = 4096 87380 16777216
+      net.ipv4.tcp_wmem = 4096 65536 16777216
+      net.ipv4.tcp_mtu_probing = 1
+      fs.file-max = 52701136
+
+  recommend:
+  - machineConfigLabels:
+      machineconfiguration.openshift.io/role: test
+    priority: 20
+    profile: aisfm-worker-kernel-profile

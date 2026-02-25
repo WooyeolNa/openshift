@@ -1,0 +1,56 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: test-rhel9-qcow2-nad
+  namespace: test-vm
+spec:
+  runStrategy: Always
+  dataVolumeTemplates:
+    - apiVersion: cdi.kubevirt.io/v1beta1
+      kind: DataVolume
+      metadata:
+        name: test-dv
+      spec:
+        source:
+          pvc:
+            name: rhel-9.6-qcow2-dv
+            namespace: test-images
+        storage:
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 35Gi
+          storageClassName: rook-ceph-block
+  template:
+    spec:
+      domain:
+        cpu:
+          cores: 2
+          sockets: 1
+          threads: 1
+        memory:
+          guest: 4Gi
+        devices:
+          disks:
+            - name: rootdisk
+              disk: { bus: virtio }
+            - name: cloudinitdisk
+              disk: { bus: virtio }
+          interfaces:
+            - name: test-nad
+              bridge: {}
+      networks:
+        - name: test-nad
+          multus:
+            networkName: virt-br-nad   # NAD가 다른 네임스페이스면 "<ns>/test-nad"로 변경
+      volumes:
+        - name: rootdisk
+          dataVolume:
+            name: test-dv
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            secretRef:
+              name: rhel9-test-vm-user-data
+            networkDataSecretRef:
+              name: rhel9-test-vm-network

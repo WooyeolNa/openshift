@@ -1,0 +1,18 @@
+apiVersion: v1
+data:
+  backend: NjAuMTQuMjIuMTI=
+  password: M3BhcmNsb3Vk
+  serviceName: cHJpbWVyYTNwYXItY3NwLXN2Yw==
+  servicePort: ODA4MA==
+  username: M3BhcmNsb3Vk
+kind: Secret
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Secret","metadata":{"annotations":{},"name":"3par-secret","namespace":"test"},"stringData":{"backend":"60.14.22.12","password":"3parcloud","serviceName":"primera3par-csp-svc","servicePort":"8080","username":"3parcloud"}}
+  creationTimestamp: "2025-08-01T08:32:12Z"
+  name: 3par-secret
+  namespace: test
+  resourceVersion: "107968204"
+  uid: d721034e-4085-47d3-803e-11ee544198b8
+type: Opaque

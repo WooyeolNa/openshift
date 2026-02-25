@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cdi-cloner-binding
+  namespace: test-images           # 권한을 줄 곳 (골든 이미지가 있는 곳)
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: test                 # 권한을 가져갈 곳 (VM이 생성될 곳)
+roleRef:
+  kind: ClusterRole
+  name: "cdi.kubevirt.io:admin"    # 리스트에서 확인된 ClusterRole
+  apiGroup: rbac.authorization.k8s.io

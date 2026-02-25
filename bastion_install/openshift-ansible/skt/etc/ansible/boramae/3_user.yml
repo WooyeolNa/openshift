@@ -1,0 +1,94 @@
+---
+- name: OS-init(S/W install & Configration settings)
+  hosts: all
+  become: true
+  serial: 1
+  vars:
+    uptime_limit : 20
+    cpu_idle_limit : 80
+    mem_limit : 15
+    ipaddr_limit : 1
+    qemu_limit : 0
+    timestamp: "{{lookup('pipe', 'date +%Y%m%d')}}"
+    create_user:
+    - name: suser
+      password: "{{'growin'|password_hash('sha512')}}"
+    - name: skroot
+      password: "{{'growin'|password_hash('sha512')}}"
+    - name: tcore
+      password: "{{'tcore!2019'|password_hash('sha512')}}"
+    - name: bkms
+      password: "{{'tjdtn@279'|password_hash('sha512')}}"
+    - name: ansible
+      password: "{{'ansib1e!'|password_hash('sha512')}}"
+    sudoers:
+    - file: /etc/sudoers.d/tcore
+      line: "tcore ALL=(root) NOPASSWD: /usr/bin/systemctl start telegraf, /usr/bin/systemctl stop telegraf, /usr/bin/systemctl restart telegraf, /usr/bin/systemctl status telegraf, /usr/bin/yum, /usr/bin/rpm, /bin/sh -c echo BECOME-SUCCESS*"
+#    - file: /etc/sudoers.d/suser
+#      line: "suser ALL=(root) NOPASSWD: /sbin/hpasmcli, /sbin/hplog, /usr/sbin/dmidecode, /usr/sbin/ssacli ctrl all show, /usr/sbin/hpssacli ctrl all show, /usr/sbin/ilorest list --selector=thermal, /usr/sbin/ilorest list --selector=power--filter name=PowerMetrics, /usr/sbin/ilorest serverinfo --thermals, /usr/sbin/ilorest serverinfo --fans, /usr/sbin/ilorest serverinfo --power, /opt/dell/srvadmin/bin/omreport, /usr/sbin/ethtool"
+    - file: /etc/sudoers.d/ansible
+      line: "ansible ALL=NOPASSWD: ALL"
+    - file: /etc/sudoers.d/ansible
+      line: "Defaults:ansible !requiretty"
+
+  tasks:
+  - name: OS Configuraions Automation ###
+    block:
+    - name: 5. Create Users
+      user:
+         name: "{{ item.name }}"
+         password: "{{ item.password }}"
+         groups: wheel
+         shell: /bin/bash
+      with_items: "{{ create_user }}"
+    - name: 6. Delete Users
+      shell: "{{ item }}"
+      with_items:
+         #- hostname
+         #- userdel shutdown
+         #- userdel halt
+         - userdel lp
+         #- userdel ftp
+         #- userdel uucp
+         #- userdel nuucp
+      args:
+         warn: false
+    - name: 13. Change file mode bits
+      shell: "{{ item }}"
+      with_items:
+         - chown root.wheel /bin/su
+         - chmod 4750 /bin/su
+         - chmod -s /usr/bin/newgrp
+        # - chmod -s /usr/bin/at
+         - chmod -s /sbin/unix_chkpwd
+         - chmod 0640 /etc/rsyslog.conf
+         - chmod 0440 /etc/sudoers.d/sguser
+         - chmod 0440 /etc/sudoers.d/smartuser
+         - chmod -s /usr/bin/pkexec
+      args:
+         warn: false
+    - name: 14. "datainfo" shell execute
+      script: "{{ item }}"
+      with_items:
+        # - md5sum /ansible/sims_cert_install_20211019.sh
+         - /ansible/sims_cert_install_20211019.sh install
+    - name: 15. Create sudoers file
+      file:
+         path: "{{ item.file }}"
+         state: touch
+         owner: root
+         group: root
+         mode: 0440
+      with_items: "{{ sudoers }}"
+    - name: 16. Edit sudoers file
+      lineinfile:
+         path: "{{ item.file }}"
+         line: "{{ item.line }}"
+         state: present
+      with_items: "{{ sudoers }}"
+    - name: 17. User Settings
+      command: "{{ item }}"
+      with_items:
+         - chage -E -1 -m 0 -M 99999 tcore
+         - chage -E -1 -m 0 -M 99999 ansible
+         #- passwd -l root

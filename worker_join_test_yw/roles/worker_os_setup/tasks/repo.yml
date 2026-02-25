@@ -1,0 +1,24 @@
+---
+- name: Ensure backup_repo directory exists
+  ansible.builtin.file:
+    path: /etc/yum.repos.d/backup_repo
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy repo file into backup_repo
+  ansible.builtin.copy:
+    src: "{{ repo_src }}"
+    dest: "{{ repo_dest }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Create main repo symlink
+  ansible.builtin.file:
+    src: "{{ repo_dest }}"
+    dest: /etc/yum.repos.d/rhocp.repo
+    state: link
+    force: true
+

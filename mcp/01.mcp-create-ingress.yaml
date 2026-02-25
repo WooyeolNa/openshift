@@ -1,0 +1,13 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfigPool
+metadata:
+  name: router
+  labels:
+    machineconfiguration.openshift.io/role: router
+spec:
+  machineConfigSelector:
+    matchExpressions:
+      - {key: machineconfiguration.openshift.io/role, operator: In, values: [worker,router]}
+  nodeSelector:
+    matchLabels:
+      node-role.kubernetes.io/router: ""

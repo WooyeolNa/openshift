@@ -1,0 +1,10 @@
+---
+- name: Deploy chrony.conf from template
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart_chronyd
+

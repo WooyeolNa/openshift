@@ -1,0 +1,11 @@
+---
+
+- name: Create cron
+  hosts: all
+  tasks:
+    - name: Create cron
+      cron:
+        name: logger
+        user: natasha
+        minute: '*/2'
+        job: logger "EX294 in progress"

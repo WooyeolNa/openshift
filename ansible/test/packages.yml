@@ -1,0 +1,25 @@
+---
+
+- name: Install packages
+  hosts: dev,test,prod
+  tasks:
+    - name: Install packages
+      yum:
+        name:
+          - php
+          - mariadb
+        state: present
+
+- name: Install Development
+  hosts: dev
+  tasks:
+    - name: Install Development
+      yum:
+        name: "@Development tools"
+        state: present
+
+    - name: Update latest
+      yum:
+        name: "*"
+        state: latest
+

@@ -1,0 +1,10 @@
+apiVersion: snapshot.kubevirt.io/v1alpha1
+kind: VirtualMachineSnapshot
+metadata:
+  name: rhel9-vm-backup-01
+  namespace: test-vm
+spec:
+  source:
+    apiGroup: kubevirt.io
+    kind: VirtualMachine
+    name: test-rhel9-qcow2-nad

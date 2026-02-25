@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: internal-registry
+  labels:
+    registry: internal
+spec:
+  storageClassName: registry-sc
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  local:
+    path: /home/core/registry-data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - bdtb-sa02a-csdb-wk08.ocp02.skt.local

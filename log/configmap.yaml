@@ -1,0 +1,14 @@
+apiVersion: v1
+data:
+  config.yaml: |
+    {"apiVersion":"openshiftcontrolplane.config.openshift.io/v1","build":{"buildDefaults":{"resources":{}},"imageTemplateFormat":{"format":"quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:2ba55799d964f18e34e5dea47021d24a4a669947be3d84d3a5ef6686f7c04968"}},"controllers":["openshift.io/build","openshift.io/build-config-change","openshift.io/builder-rolebindings","openshift.io/builder-serviceaccount","-openshift.io/default-rolebindings","openshift.io/deployer","openshift.io/deployer-rolebindings","openshift.io/deployer-serviceaccount","openshift.io/deploymentconfig","openshift.io/image-import","-openshift.io/image-puller-rolebindings","openshift.io/image-signature-import","openshift.io/image-trigger","openshift.io/ingress-ip","openshift.io/ingress-to-route","openshift.io/origin-namespace","openshift.io/serviceaccount","-openshift.io/serviceaccount-pull-secrets","openshift.io/templateinstance","openshift.io/templateinstancefinalizer","openshift.io/unidling"],"deployer":{"imageTemplateFormat":{"format":"quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:177562ae72ff442a4f2105ffe07cf1699b6bf181940695a6d838e36634a7bde8"}},"featureGates":["BuildCSIVolumes=true"],"ingress":{"ingressIPNetworkCIDR":""},"kind":"OpenShiftControllerManagerConfig"}
+  openshift-controller-manager.client-ca.configmap: 2IC6aQ==
+  openshift-controller-manager.openshift-global-ca.configmap: ElMHxA==
+  openshift-controller-manager.serving-cert.secret: sSMbqA==
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2025-02-10T09:21:32Z"
+  name: config
+  namespace: openshift-controller-manager
+  resourceVersion: "6854951"
+  uid: 9166a8f8-6f68-4cc7-a957-8095db5ec70a

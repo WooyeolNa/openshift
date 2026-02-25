@@ -1,0 +1,16 @@
+apiVersion: hostpathprovisioner.kubevirt.io/v1beta1
+kind: HostPathProvisioner
+metadata:
+  name: hostpath-provisioner
+spec:
+  imagePullPolicy: IfNotPresent
+  storagePools:
+  - name: local-pool
+    path: "/var/local-vm"
+  workload:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ""
+    toleration:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/infra
+        operator: Exists

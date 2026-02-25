@@ -1,0 +1,90 @@
+apiVersion: imageregistry.operator.openshift.io/v1
+kind: Config
+metadata:
+  creationTimestamp: "2025-04-15T05:13:07Z"
+  finalizers:
+  - imageregistry.operator.openshift.io/finalizer
+  generation: 2
+  name: cluster
+  resourceVersion: "1309395"
+  uid: 70e12776-d57e-4cc4-ab2f-846330cfde60
+spec:
+  logLevel: Normal
+  managementState: Removed
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  observedConfig: null
+  operatorLogLevel: Normal
+  proxy: {}
+  replicas: 1
+  requests:
+    read:
+      maxWaitInQueue: 0s
+    write:
+      maxWaitInQueue: 0s
+  rolloutStrategy: Recreate
+  storage: {}
+  tolerations:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+    operator: Exists
+  unsupportedConfigOverrides: null
+status:
+  conditions:
+  - lastTransitionTime: "2025-04-15T05:13:07Z"
+    reason: AsExpected
+    status: "False"
+    type: ImageConfigControllerDegraded
+  - lastTransitionTime: "2025-04-18T09:09:31Z"
+    message: All registry resources are removed
+    reason: Removed
+    status: "False"
+    type: Progressing
+  - lastTransitionTime: "2025-04-15T05:13:07Z"
+    message: The registry is removed
+    reason: Removed
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2025-04-15T05:13:07Z"
+    message: The registry is removed
+    reason: Removed
+    status: "False"
+    type: Degraded
+  - lastTransitionTime: "2025-04-15T05:13:07Z"
+    message: The registry is removed
+    reason: Removed
+    status: "True"
+    type: Removed
+  - lastTransitionTime: "2025-04-15T05:13:19Z"
+    reason: AsExpected
+    status: "False"
+    type: ImageRegistryCertificatesControllerDegraded
+  - lastTransitionTime: "2025-04-15T05:14:40Z"
+    reason: AsExpected
+    status: "False"
+    type: AzureStackCloudControllerDegraded
+  - lastTransitionTime: "2025-04-15T05:15:49Z"
+    message: The daemon set node-ca has available replicas
+    reason: AsExpected
+    status: "True"
+    type: NodeCADaemonAvailable
+  - lastTransitionTime: "2025-04-18T08:32:15Z"
+    message: The daemon set node-ca is deployed
+    reason: AsExpected
+    status: "False"
+    type: NodeCADaemonProgressing
+  - lastTransitionTime: "2025-04-15T05:14:40Z"
+    reason: AsExpected
+    status: "False"
+    type: NodeCADaemonControllerDegraded
+  generations:
+  - group: apps
+    hash: ""
+    lastGeneration: 1
+    name: node-ca
+    namespace: openshift-image-registry
+    resource: daemonsets
+  observedGeneration: 2
+  readyReplicas: 0
+  storage: {}
+  storageManaged: false

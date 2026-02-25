@@ -1,0 +1,9 @@
+---
+
+- name: issue
+  hosts: all
+  tasks:
+    copy:
+      dest: /etc/issue
+      content: 'Development'
+    when: ansible_hostname in groups.dev

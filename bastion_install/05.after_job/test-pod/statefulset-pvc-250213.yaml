@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: statefulset-test-storage
+  namespace: test
+  labels:
+    test: ""
+spec:
+  replicas: 37
+  selector:
+    matchLabels:
+      test: ""
+  template:
+    metadata:
+      labels:
+        test: ""
+        podmon.dellemc.com/driver: csi-vxflexos
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - snsu-ims13b-ma1.ocp13.skt.local
+                - snsu-ims13b-ma2.ocp13.skt.local
+                - snsu-ims13b-ma3.ocp13.skt.local
+                - snsu-ims13b-mss-ems-wk01.ocp13.skt.local
+                - snsu-ims13b-mss-ems-wk02.ocp13.skt.local 
+                - snsu-ims13b-mss121-wk01.ocp13.skt.local
+                - snsu-ims13b-mss121-wk02.ocp13.skt.local 
+                - snsu-ims13b-mss121-wk03.ocp13.skt.local 
+                - snsu-ims13b-mss121-wk04.ocp13.skt.local 
+                - snsu-ims13b-mss121-wk05.ocp13.skt.local 
+                - snsu-ims13b-mss121-wk06.ocp13.skt.local 
+                - snsu-ims13b-mss121-wk07.ocp13.skt.local 
+                - snsu-ims13b-mss121-wk08.ocp13.skt.local 
+                - snsu-ims13b-mss122-wk01.ocp13.skt.local 
+                - snsu-ims13b-mss122-wk02.ocp13.skt.local 
+                - snsu-ims13b-mss122-wk03.ocp13.skt.local 
+                - snsu-ims13b-mss122-wk04.ocp13.skt.local 
+                - snsu-ims13b-mss122-wk05.ocp13.skt.local 
+                - snsu-ims13b-mss122-wk06.ocp13.skt.local 
+                - snsu-ims13b-mss122-wk07.ocp13.skt.local 
+                - snsu-ims13b-mss122-wk08.ocp13.skt.local  
+                - snsu-ims13b-mss123-wk01.ocp13.skt.local
+                - snsu-ims13b-mss123-wk02.ocp13.skt.local 
+                - snsu-ims13b-mss123-wk03.ocp13.skt.local 
+                - snsu-ims13b-mss123-wk04.ocp13.skt.local 
+                - snsu-ims13b-mss123-wk05.ocp13.skt.local 
+                - snsu-ims13b-mss123-wk06.ocp13.skt.local 
+                - snsu-ims13b-mss123-wk07.ocp13.skt.local 
+                - snsu-ims13b-mss123-wk08.ocp13.skt.local 
+                - snsu-ims13b-mss124-wk01.ocp13.skt.local 
+                - snsu-ims13b-mss124-wk02.ocp13.skt.local 
+                - snsu-ims13b-mss124-wk03.ocp13.skt.local 
+                - snsu-ims13b-mss124-wk04.ocp13.skt.local 
+                - snsu-ims13b-mss124-wk05.ocp13.skt.local 
+                - snsu-ims13b-mss124-wk06.ocp13.skt.local 
+                - snsu-ims13b-mss124-wk07.ocp13.skt.local 
+                - snsu-ims13b-mss124-wk08.ocp13.skt.local  
+      containers:
+      - name: st-con
+        image: registry.apps.ocp13.skt.local/test-images/centos7:7.9_v2
+        volumeMounts:
+        - name: test-pvc
+          mountPath: /liveshell_log
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+      tolerations:
+      - effect: NoExecute
+        key: node.kubernetes.io/not-ready
+        operator: Exists
+        tolerationSeconds: 30
+      - effect: NoExecute
+        key: node.kubernetes.io/unreachable
+        operator: Exists
+        tolerationSeconds: 30
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+  volumeClaimTemplates:
+  - metadata:
+      name: test-pvc
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "cmss-sc" 
+      resources:
+        requests:
+          storage: 100Mi

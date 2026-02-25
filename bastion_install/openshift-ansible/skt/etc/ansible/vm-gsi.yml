@@ -1,0 +1,59 @@
+---
+- name: Gathering System Information
+  hosts: all
+  become: true
+  gather_facts: yes
+  vars:
+    packages:
+    - ipmitool
+    - lshw
+    - smartmontools
+    timestamp: "{{lookup('pipe', 'date +%Y%m%d')}}"
+  tasks:
+    - name: 1. Yum Install
+      yum:
+         name: "{{packages}}"
+         state: latest
+    - name: 2. Ansible Directory Create
+      file:
+         owner: root
+         group: root
+         path: /ansible/gsi/
+         state: directory
+         mode: 0644
+    - name: 3. RPM & Script file copy
+      copy:
+         src: "{{ item }}"
+         dest: /ansible/
+         owner: root
+         group: root
+         mode: 0744
+      with_fileglob:
+         - /ansible/files/gsi_HP.sh
+         - /ansible/files/ssacli-4.21-7.0.x86_64.rpm
+    - name: 4. "ssacli" RPM Install
+      yum:
+         name: /ansible/ssacli-4.21-7.0.x86_64.rpm
+         state: present
+      args:
+         disable_gpg_check: yes
+    - name: 5. Execute lshw
+      shell: "{{ item }}"
+      with_items:
+         - /usr/sbin/lshw > /ansible/gsi/lshw_results.{{ ansible_hostname }}.{{ timestamp }}
+         - /usr/sbin/lshw -C network -short > /ansible/gsi/lshw_nw
+    - name: 6. Get lshw_results
+      fetch:
+         src: /ansible/gsi/lshw_results.{{ ansible_hostname }}.{{ timestamp }}
+         dest: /lshw_results/
+         flat: yes
+    - name: 7. Execure gsi Shell
+      shell: "{{ item }}"
+      with_items:
+         - /ansible/gsi_HP.sh
+    - name: 8. Get gsi_results
+      fetch:
+         src: /ansible/gsi/gsi_results.{{ ansible_hostname }}.{{ timestamp }}.csv
+         dest: /cia_cmdb/{{ timestamp }}/
+         flat: yes
+

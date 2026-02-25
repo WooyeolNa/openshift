@@ -1,0 +1,11 @@
+---
+- name: Enable xt_CHECKSUM module
+  when: enable_xt_checksum | default(false) | bool
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/xt_CHECKSUM.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      xt_CHECKSUM
+

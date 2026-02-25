@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: statesfulset-pod
+  namespace: test
+  labels:
+    test: pod
+spec:
+  replicas: 13
+  selector:
+    matchLabels:
+      test: test
+  template:
+    metadata:
+      labels:
+        test: test
+    spec:
+      containers:
+      - name: st-con
+        image: image-registry.openshift-image-registry.svc:5000/test-images/centos7:7.9_v2
+        #image: image-registry.openshift-image-registry.svc:5000/samsung-images/simplecert:8.0.0
+        volumeMounts:
+        - name: test-pvc
+          mountPath: /liveshell_log
+        #livenessProbe:
+        #  httpGet:
+        #    path: /healthz
+        #    port: 8080
+        #    scheme: HTTPS
+        #    httpHeaders:
+        #    - name: X-Custom-Header
+        #      value: Awesome
+        #volumeDevices:
+        #  - name: test-pvc
+        #    devicePath: /dev/xvda
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+      tolerations:
+      - effect: NoExecute
+        key: node.kubernetes.io/not-ready
+        operator: Exists
+        tolerationSeconds: 10
+      - effect: NoExecute
+        key: node.kubernetes.io/unreachable
+        operator: Exists
+        tolerationSeconds: 10
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+  volumeClaimTemplates:
+  - metadata:
+      name: test-pvc
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "cmss-sc"
+      resources:
+        requests:
+          storage: 100Mi

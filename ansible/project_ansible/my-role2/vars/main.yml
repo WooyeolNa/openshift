@@ -1,0 +1,6 @@
+---
+# vars file for my-role2
+
+service_port:
+  - http
+  - https

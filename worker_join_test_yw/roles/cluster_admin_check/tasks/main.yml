@@ -1,0 +1,28 @@
+---
+- name: Find oc client
+  ansible.builtin.command: which oc
+  register: _oc
+  changed_when: false
+  failed_when: _oc.rc != 0
+
+- name: Build kubeconfig env (if defined)
+  ansible.builtin.set_fact:
+    _kube_env: >-
+      {{
+        (openshift_kubeconfig_path is defined)
+        | ternary({'KUBECONFIG': openshift_kubeconfig_path}, {})
+      }}
+
+- name: Check cluster-admin (can-i '*' '*' in all namespaces)
+  ansible.builtin.command: oc auth can-i '*' '*' --all-namespaces
+  register: _can
+  changed_when: false
+  environment: "{{ _kube_env }}"
+
+- name: Fail if not cluster-admin
+  ansible.builtin.fail:
+    msg: >-
+      Current user is not cluster-admin.
+      (oc auth can-i '*' '*' --all-namespaces returned '{{ _can.stdout | trim }}')
+  when: _can.stdout | trim != 'yes'
+

@@ -1,0 +1,25 @@
+---
+- name: Post-Check
+  hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+    - name: 1. chkHwOperEnv File Copy
+      copy:
+         src: /ansible/files/chkHwOperEnv.0405.sh
+         dest: /ansible/
+         owner: root
+         group: root
+         mode: 0744
+    - name: 2. Execure Post-Check Shell
+      shell: "{{ item }}"
+      with_items:
+         - /ansible/chkHwOperEnv.0405.sh > /ansible/chkHwOperEnv_results.$HOSTNAME.`date +%Y%m%d`
+    - name: 3. Cat results
+      command: cat /ansible/chkHwOperEnv_results.$HOSTNAME.`date +%Y%m%d` | grep NOK
+      register: post_check_results
+    - name: Print result variable
+      debug:
+        msg:
+          - "{{ post_check_results.stdout_lines }}"
+

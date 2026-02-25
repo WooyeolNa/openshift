@@ -1,0 +1,18 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: cmss-sc
+provisioner: csi-vxflexos.dellemc.com
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+parameters:
+  storagepool: SP-1
+  systemID: 415f76ee7233610f
+  csi.storage.k8s.io/fstype: xfs
+volumeBindingMode: Immediate
+allowedTopologies:
+- matchLabelExpressions:
+  - key: csi-vxflexos.dellemc.com/415f76ee7233610f
+    values:
+    - csi-vxflexos.dellemc.com
+

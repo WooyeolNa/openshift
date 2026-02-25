@@ -1,0 +1,50 @@
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: bss-scc
+allowPrivilegedContainer: false
+allowPrivilegeEscalation: true
+allowHostDirVolumePlugin: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostIPC: false
+allowHostPorts: false
+readOnlyRootFilesystem: false
+
+# SA 매핑 직접 기입하려면 주석 제거 후 사용
+# users:
+#   - system:serviceaccount:opasnet:opasnet-test01
+
+# 그룹으로 namespace serviceaccounts 전체 허용하려면:
+# groups:
+#   - system:serviceaccounts:opasnet
+
+priority: 10
+
+# 어떤 UID로 실행하든 허용
+runAsUser:
+  type: RunAsAny
+
+fsGroup:
+  type: RunAsAny
+
+seLinuxContext:
+  type: MustRunAs
+
+supplementalGroups:
+  type: RunAsAny
+
+volumes:
+  - configMap
+  - downwardAPI
+  - emptyDir
+  - persistentVolumeClaim
+  - projected
+  - secret
+
+# 디폴트 Capabilities
+defaultAddCapabilities: []
+requiredDropCapabilities: []
+allowedCapabilities:
+  - NET_BIND_SERVICE   # 필요 시 추가
+

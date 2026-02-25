@@ -1,0 +1,13 @@
+---
+
+- name: Install yum repo
+  hosts: all
+  tasks:
+    - name: Install yum repo
+      yum_repository:
+        name: EX294_BaseOS
+        description: EX294 baseos software
+        baseurl: http://redhat.example.com/repo/BaseOS
+        gpgcheck: yes
+        gpgkey: http://redhat.example.com/rhel/rhel-gpg-key
+        enabled: yes

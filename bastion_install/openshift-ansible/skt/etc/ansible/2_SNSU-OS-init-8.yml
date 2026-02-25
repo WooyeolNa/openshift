@@ -1,0 +1,431 @@
+### Ver. 20230217 (/etc/shadow, storcli added)
+### Ver. 20230504 (userdel, HP tool, sysstat modified)
+### Ver. 20230508 (systemctl restart systemd-logind added)
+### Ver. 20230921 (vars_files)
+### Ver. 20240520  pam.d setting updatge(21-1, 21-2, 21-3) 
+
+
+---
+- name: OS-init-8(S/W install & Configration settings)
+  hosts: all
+  become: true
+  serial: 1
+  vars_files:
+    - vars/2_SNSU-OS-init-8_vars.yml
+  
+  tasks:
+  - name : Pre-check and Register Conditionals
+    block:
+    - name: pre.0 Directory Create
+      file:
+         path: /ansible
+         state: directory
+         owner: root
+         group: root
+         mode: 0755
+    - name: Pre.1 Pre-Check File Copy
+      copy:
+         src: /ansible/files/pre-check2.sh
+         dest: /ansible/pre-check2.sh
+         owner: root
+         group: root
+         mode: 0744
+    - name: Pre.2 Execute Pre-Check Shell
+      shell: "{{ item }}"
+      with_items:
+         - /ansible/pre-check2.sh > /ansible/pre_check_results
+    - name: Pre.3 Uptime Result Register
+      shell: cat /ansible/pre_check_results  | grep -A 1 "\[Uptime\]" | tail -1 | awk '{print $1}'
+      register: uptime_result
+    - name: Pre.4 CPU Result Register
+      shell: cat /ansible/pre_check_results  |grep -A 1 "\[CPU Util.\]" | tail -1 | awk '{print $5}' | awk -F'.' '{print $1}'
+      register: cpu_result
+    - name: Pre.5 MEM Result Register
+      shell: cat /ansible/pre_check_results  |grep -A 1 "\[MEM Util.\]" | tail -1 | awk '{print $1}' | awk -F'.' '{print $1}'
+      register: mem_result
+    - name: Pre.6 IPADDR Result Register
+      shell: ip addr show | grep -w inet  |egrep -v "127.0.0.1|virbr"| awk '{print $NF,":",$2}'  | awk -F '/' '{print $1}' |wc -l
+      register: ipaddr_result
+    - name: Pre.7 QEMU Result Register
+      shell: cat /ansible/pre_check_results | tail -1 | awk '{print $1}'
+      register: qemu_result
+
+  - name: OS Configuraions Automation ###
+    block:
+    - name: 1. Hosts ping check
+      ping:
+    - name: 2. Yum repository setting
+      block:
+      - name: 2-0. bkup Directory Create
+        file:
+           path: /etc/yum.repos.d/bkup
+           state: directory
+           owner: root
+           group: root
+           mode: 0755
+      - name: 2-1. Yum.repos.d files remove
+        shell: "{{ item }}"
+        with_items:
+           - mv /etc/yum.repos.d/*repo* /etc/yum.repos.d/bkup/
+        args:
+           warn: false
+      - name: 2-2. Ansible repo file copy
+        copy:
+           src: /etc/yum.repos.d/ansible.repo
+           dest: /etc/yum.repos.d/ansible.repo
+           owner: root
+           group: root
+           mode: 0644
+    - name: 3. Yum Install
+      yum:
+         name: "{{ packages }}"
+         state: latest
+    - name: 4. RPM & Script file copy
+      copy:
+         src: "{{ item }}"
+         dest: /ansible/
+         owner: root
+         group: root
+         mode: 0744
+      with_fileglob:
+         - /ansible/files/*
+    - name: 5. Create Users
+      user:
+         name: "{{ item.name }}"
+         password: "{{ item.password }}"
+         groups: wheel
+         shell: /bin/bash
+      with_items: "{{ create_user }}"
+    - name: 6. Delete Users
+      command: "{{ item }}"
+      with_items:
+         - sed -i /^hal/d /etc/passwd
+         - sed -i /^shutdo/d /etc/passwd
+         - sed -i /^ftp/d /etc/passwd
+         - sed -i /^lp/d /etc/passwd
+         - sed -i /^uucp/d /etc/passwd
+         - sed -i /^nuucp/d /etc/passwd
+    - name: 7. Remove Critical users in /etc/shadow 
+      command: "{{ item }}"
+      with_items:
+         - sed -i /^hal/d /etc/shadow
+         - sed -i /^shutdo/d /etc/shadow
+    - name: 8. "skt-osbackup" RPM Install
+      yum:
+         name: /ansible/skt-osbackup-1.0-12.el7.x86_64.rpm
+         state: present
+      args:
+         disable_gpg_check: yes
+    - name: 9. sudo install Script 
+      script: "{{ item }}"
+      with_items:
+         - /ansible/sudo_install_20230801.sh --install
+         - /ansible/sudo_tcore_install_20230801.sh --install
+    - name: 10-1. HP RPM Install(ssacli, ilorest, amsd, storcli)
+      yum:
+         name: "{{ item }}"
+         state: present
+      args:
+         disable_gpg_check: yes
+      loop:
+         - "{{ ilorest_file }}"
+         - "{{ amsd_file }}"
+         - "{{ array_controller_cli_file }}"
+      when: ansible_system_vendor == "HPE"
+    - name: 10-2. DELL RPM Install(omsa)
+      yum:
+         name: "{{ dell_om_file }}"
+         state: present
+      args:
+         disable_gpg_check: yes
+      when: ansible_system_vendor == "Dell Inc."
+    - name: 11. "rmNeAgent" shell execute
+      script: /ansible/rmNeAgent-linux.191202.sh
+    - name: 12. "sguser" shell execute
+      script: /ansible/sguser_linux_181012_1.sh
+    - name: 13. "smartuser" shell execute
+      script: /ansible/smartuser-linux.191202.sh
+    - name: 14. Change file mode bits
+      shell: "{{ item }}"
+      with_items:
+         - chown root.wheel /bin/su
+         - chmod 4750 /bin/su
+         - chmod -s /usr/bin/newgrp
+         #- chmod -s /usr/bin/at
+         - chmod -s /sbin/unix_chkpwd
+         - chmod 0640 /etc/rsyslog.conf
+         - chmod 0440 /etc/sudoers
+         - chmod 0440 /etc/sudoers.d/*
+         - chmod -s /usr/bin/pkexec
+      args:
+         warn: false
+    - name: 15. "datainfo" shell execute
+      script: "{{ item }}"
+      with_items:
+         - /ansible/sims_cert_install_20230801.sh --install
+    - name: 16. Ansible Sudoers file copy
+      copy:
+         src: "{{ item }}"
+         dest: /etc/sudoers.d/
+         owner: root
+         group: root
+         mode: 0440
+         validate: /usr/sbin/visudo -csf %s
+      with_fileglob:
+         - /etc/sudoers.d/ansible
+    - name: 17. User Settings
+      command: "{{ item }}"
+      with_items:
+         #- chage -E -1 -m 0 -M 99999 tcore
+         - chage -E -1 -m 0 -M 99999 ansible
+         - chage -E -1 -m 0 -M 99999 bkms
+         #- passwd -l root
+    - name: 18. "sshd_config" file settings
+      copy:
+         src: /etc/ssh/sshd_config
+         dest: /etc/ssh/sshd_config
+         owner: root
+         group: root
+         mode: 0600
+         backup: yes
+    - name: 19-1. sysstat-collect.timer.d Directory Create
+      file:
+         path: /etc/systemd/system/sysstat-collect.timer.d
+         state: directory
+         owner: root
+         group: root
+         mode: 0755
+    - name: 19-2. Sysstat settings
+      copy:
+         src: /etc/systemd/system/sysstat-collect.timer.d/override.conf
+         dest: /etc/systemd/system/sysstat-collect.timer.d/override.conf
+         owner: root
+         group: root
+         mode: 0644
+         backup: yes
+    - name: 20. HandlePowerKey setting
+      copy:
+         src: /etc/systemd/logind.conf
+         dest: /etc/systemd/logind.conf
+         owner: root
+         group: root
+         mode: 0644
+         backup: yes
+    - name: 21. pam.d policy settings
+      copy:
+         src: "{{ item }}"
+         dest: /etc/pam.d/
+         owner: root
+         group: root
+         mode: 0644
+         backup: yes
+      with_fileglob:
+         - /ansible/RHEL8/system-auth
+         - /ansible/RHEL8/password-auth
+         - /ansible/RHEL8/su
+    - name: 21-1. /etc/pam.d/login settings
+      lineinfile:
+        path: /etc/pam.d/login
+        regexp: '^auth.*pam_securetty.so'
+        line: 'auth [user_unknown=ignore success=ok ignore=ignore default=bad] pam_securetty.so'
+        insertbefore: '^auth\s+substack\s+system-auth'
+        state: present
+    - name: 21-2. /etc/pam.d/remote setting
+      lineinfile:
+        path: /etc/pam.d/remote
+        regexp: '^auth.*pam_securetty.so'
+        line: 'auth required pam_securetty.so'
+        insertbefore: '^auth\s+substack\s+password-auth'
+        state: present
+    - name: 21-3. Create /etc/securetty file with required contents
+      copy:
+        dest: /etc/securetty
+        content: |
+          console
+          vc/1
+          vc/2
+          vc/3
+          vc/4
+          vc/5
+          vc/6
+          vc/7
+          vc/8
+          vc/9
+          vc/10
+          vc/11
+          tty1
+          tty2
+          tty3
+          tty4
+          tty5
+          tty6
+          tty7
+          tty8
+          tty9
+          tty10
+          tty11
+          ttyS0
+          ttysclp0
+          sclp_line0
+          3270/tty1
+          hvc0
+          hvc1
+          hvc2
+          hvc3
+          hvc4
+          hvc5
+          hvc6
+          hvc7
+          hvsi0
+          hvsi1
+          hvsi2
+          xvc0
+        owner: root
+        group: root
+        mode: '0400'
+        backup: yes
+    - name: 22. Profile settings
+      lineinfile:
+         path: /etc/profile
+         line: "{{ item }}"
+         state: present
+      with_items:
+         - "### Configured by Ansible ###"
+         - umask 022
+         - export HISTTIMEFORMAT="%F %T  "
+         - export HISTSIZE=5000
+         - export TMOUT=3600
+    - name: 23. "bashrc" file settings
+      lineinfile:
+         path: /etc/bashrc
+         line: "{{ item }}"
+         state: present
+      with_items:
+         - "### Configured by Ansible ###"
+         - umask 022
+         - export HISTTIMEFORMAT="%F %T  "
+         - export HISTSIZE=5000
+         - export TMOUT=3600
+    - name: 24. "login.defs" file settings
+      copy:
+         src: /etc/login.defs
+         dest: /etc/login.defs
+         owner: root
+         group: root
+         mode: 0644
+         backup: yes
+    - name: 25. "rsyslog.conf" file settings
+      copy:
+         src: /etc/rsyslog.conf
+         dest: /etc/rsyslog.conf
+         owner: root
+         group: root
+         mode: 0640
+         backup: yes
+    - name: 26. "limits.conf" file settings
+      copy:
+         src: /etc/security/limits.conf
+         dest: /etc/security/limits.conf
+         owner: root
+         group: root
+         mode: 0644
+         backup: yes
+    - name: 27. "20-nproc.conf" file settings
+      copy:
+         src: /etc/security/limits.d/20-nproc.conf
+         dest: /etc/security/limits.d/20-nproc.conf
+         owner: root
+         group: root
+         mode: 0644
+         backup: yes
+    - name: 28. Logrotate setting
+      command: "{{ item }}"
+      with_items:
+         - sed -i "s/^daily/weekly/" /etc/logrotate.conf
+         - sed -i "s/^rotate 4/rotate 32/" /etc/logrotate.conf
+      args:
+         warn: false
+    - name: 29. HWClock & Local Time setting
+      command: "{{ item }}"
+      with_items:
+         - ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+         - hwclock -w
+      args:
+         warn: false
+    - name: 30. Temprature & SFP Monitoring Cron Job setting
+      copy:
+         src: /var/spool/cron/suser
+         dest: /var/spool/cron/suser
+         owner: suser
+         group: suser
+         mode: 0600
+         backup: yes
+      when: ansible_system_vendor == "HPE" or ansible_system_vendor == "Dell Inc."
+    - name: 31-1. Temperature & SFP Monitoring File Copy & IP Settings
+      command: "{{ item }}"
+      with_items:
+         #lsj 20240903 - chcon -t user_cron_spool_t -u unconfined_u /var/spool/cron/suser
+         - mkdir -p /home/suser/SSNOC/LOG
+         - cp /ansible/qryTemperatureILO.sh /home/suser/SSNOC/qryTemperatureILO.sh
+         - cp /ansible/chkSfpPower.sh /home/suser/SSNOC/chkSfpPower.sh
+         - chmod 744  /home/suser/SSNOC/qryTemperatureILO.sh
+         - chmod 744  /home/suser/SSNOC/chkSfpPower.sh
+         - chown -Rf suser:suser /home/suser/
+         - bash /ansible/setTempIP.sh
+         - bash /ansible/setSFPPort.sh
+         # - su - suser -c '/home/suser/SSNOC/qryTemperatureILO.sh'
+         # - su - suser -c '/home/suser/SSNOC/chkSfpPower.sh'
+      args:
+         warn: false
+      when: ansible_system_vendor == "HPE"
+    - name: 31-2. Temperature & SFP Monitoring File Copy & IP Settings
+      command: "{{ item }}"
+      with_items:
+         #- chcon -t user_cron_spool_t -u unconfined_u /var/spool/cron/suser
+         - mkdir -p /home/suser/SSNOC/LOG
+         - cp /ansible/qryTemperatureDELL.sh /home/suser/SSNOC/qryTemperatureDELL.sh
+         - cp /ansible/chkSfpPower.sh /home/suser/SSNOC/chkSfpPower.sh
+         - chmod 744  /home/suser/SSNOC/qryTemperatureDELL.sh
+         - chmod 744  /home/suser/SSNOC/chkSfpPower.sh
+         - chown -Rf suser:suser /home/suser/
+         - bash /ansible/setTempIP.sh
+         - bash /ansible/setSFPPort.sh
+         # - su - suser -c '/home/suser/SSNOC/qryTemperatureDELL.sh'
+         # - su - suser -c '/home/suser/SSNOC/chkSfpPower.sh'
+      args:
+         warn: false
+      when: ansible_system_vendor == "Dell Inc."
+    - name: 32. Additional Settings
+      command: "{{ item }}"
+      with_items:
+         - sed -i s/"umask 002"/"umask 022"/g /etc/bashrc
+         - sed -i s/"umask 002"/"umask 022"/g /etc/profile
+         - systemctl restart systemd-logind
+         - systemctl restart rsyslog
+         - systemctl restart sshd
+         - systemctl disable ctrl-alt-del.target
+         - systemctl mask ctrl-alt-del.target
+         - systemctl daemon-reload
+         - systemctl restart sysstat
+         - systemctl enable sysstat
+         - systemctl restart sysstat-collect.timer
+         - systemctl enable sysstat-collect.timer
+         - systemctl restart sysstat-summary.timer
+         - systemctl enable sysstat-summary.timer
+         - systemctl stop firewalld
+         - systemctl disable firewalld
+#         - systemctl stop rpcbind
+#         - systemctl disable rpcbind
+#         - systemctl stop rpcbind.socket
+#         - systemctl disable rpcbind.socket
+      args:
+         warn: false
+    when:
+      - uptime_result.stdout|int < uptime_limit
+      - cpu_result.stdout|int > cpu_idle_limit
+      - mem_result.stdout|int < mem_limit
+      - ipaddr_result.stdout|int < ipaddr_limit
+      - qemu_result.stdout|int < qemu_limit
+      - ansible_distribution == "RedHat"
+      - ansible_distribution_major_version == "8"
+ 

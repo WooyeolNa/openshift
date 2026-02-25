@@ -1,0 +1,6 @@
+- username: "admin"
+  password: "Dlsvmfk!23"
+  systemID: "415f76ee7233610f"
+  endpoint: "https://172.16.176.207"
+  skipCertificateValidation: true
+  mdm: "172.16.176.208"

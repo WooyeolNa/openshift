@@ -1,0 +1,11 @@
+apiVersion: operator.openshift.io/v1alpha1
+kind: ImageContentSourcePolicy
+metadata:
+  labels:
+    operators.openshift.org/catalog: "true"
+  name: redhat-operator-sriov-network-operator-index
+spec:
+  repositoryDigestMirrors:
+  - mirrors:
+    - snsu-registry.ocp.skt.local:5016/olm-mirror/openshift4
+    source: registry.redhat.io/openshift4

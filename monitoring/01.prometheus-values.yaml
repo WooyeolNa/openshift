@@ -1,0 +1,32 @@
+nodeExporter:
+  enabled: false
+server:
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+
+alertmanager:
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+
+pushgateway:
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+

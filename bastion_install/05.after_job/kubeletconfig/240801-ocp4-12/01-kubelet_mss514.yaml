@@ -1,0 +1,33 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: mss514
+  name: cnf-mss514-worker-tuning
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      machineconfiguration.openshift.io/role: mss514
+  kubeletConfig:
+    cpuManagerPolicy: "static"
+    cpuManagerReconcilePeriod: "5s"
+    cpuManagerPolicyOptions:
+      full-pcpus-only: "true"
+    reservedSystemCPUs: "0-1,28-29,56-57,84-85"
+    memoryManagerPolicy: "Static"
+    evictionHard:
+      memory.available: "100Mi"
+      imagefs.available: "5%"
+      nodefs.available: "5%"
+      nodefs.inodesFree: "5%"
+    reservedMemory:
+      - numaNode: 0
+        limits:
+          memory: "7200Mi"
+      - numaNode: 1
+        limits:
+          memory: "7200Mi"
+    systemReserved:
+      memory: "14300Mi"
+    topologyManagerPolicy: "single-numa-node"
+    topologyManagerScope: "pod"

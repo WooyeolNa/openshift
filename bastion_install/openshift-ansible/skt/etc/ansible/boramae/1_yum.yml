@@ -1,0 +1,64 @@
+---
+- name: OS-init(S/W install & Configration settings)
+  hosts: all
+  become: true
+  serial: 1
+  vars:
+    uptime_limit : 20
+    cpu_idle_limit : 80
+    mem_limit : 15
+    ipaddr_limit : 1
+    qemu_limit : 0
+    timestamp: "{{lookup('pipe', 'date +%Y%m%d')}}"
+    packages:
+    - vim
+    - pciutils
+    - ipmitool
+    - lshw
+    - smartmontools
+    - sysstat
+    - psmisc
+    - lvm2
+    - traceroute
+    - tcpdump
+    - mtr
+    - net-tools
+#    - ntp
+    - zip
+#    - glances
+    - dstat
+#    - htop
+    - sos
+    - openssh
+    - openssl
+    - iotop
+#    - virt-top
+#    - iftop
+#$    - lm_sensors
+    - numactl
+    - lsof
+
+  tasks:
+  - name: OS Configuraions Automation ###
+    block:
+    - name: 2. Yum repository setting
+      block:
+      - name: 2-1. Ansible repo file copy
+        copy:
+           src: /etc/yum.repos.d/ansible.repo
+           dest: /etc/yum.repos.d/ansible.repo
+           owner: root
+           group: root
+           mode: 0644
+      - name: 2-2. Yum.repos.d files remove
+        command: "{{ item }}"
+        with_items:
+           - rm -f /etc/yum.repos.d/Cent*
+           - dnf list
+        args:
+           warn: false
+    - name: 3. Yum Install
+      yum:
+         name: "{{packages}}"
+         state: latest
+         #skip_broken: yes

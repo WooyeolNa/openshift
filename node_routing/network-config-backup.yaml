@@ -1,0 +1,70 @@
+apiVersion: operator.openshift.io/v1
+kind: Network
+metadata:
+  creationTimestamp: "2025-02-10T09:20:42Z"
+  generation: 275
+  name: cluster
+  resourceVersion: "3757912"
+  uid: 2118c13f-90e8-4aef-a81c-e0cea49ff44d
+spec:
+  clusterNetwork:
+  - cidr: 192.168.0.0/16
+    hostPrefix: 24
+  defaultNetwork:
+    ovnKubernetesConfig:
+      egressIPConfig: {}
+      gatewayConfig:
+        ipv4: {}
+        ipv6: {}
+        routingViaHost: false
+      genevePort: 6081
+      ipsecConfig:
+        mode: Disabled
+      mtu: 1400
+      policyAuditConfig:
+        destination: "null"
+        maxFileSize: 50
+        maxLogFiles: 5
+        rateLimit: 20
+        syslogFacility: local0
+    type: OVNKubernetes
+  deployKubeProxy: false
+  disableMultiNetwork: false
+  disableNetworkDiagnostics: false
+  logLevel: Normal
+  managementState: Managed
+  observedConfig: null
+  operatorLogLevel: Normal
+  serviceNetwork:
+  - 40.30.0.0/16
+  unsupportedConfigOverrides: null
+  useMultiNetworkPolicy: false
+status:
+  conditions:
+  - lastTransitionTime: "2025-02-10T09:20:42Z"
+    message: ""
+    reason: ""
+    status: "False"
+    type: ManagementStateDegraded
+  - lastTransitionTime: "2025-02-10T09:21:14Z"
+    message: ""
+    reason: ""
+    status: "False"
+    type: Degraded
+  - lastTransitionTime: "2025-02-10T09:20:42Z"
+    message: ""
+    reason: ""
+    status: "True"
+    type: Upgradeable
+  - lastTransitionTime: "2025-02-18T11:37:51Z"
+    message: ""
+    reason: ""
+    status: "False"
+    type: Progressing
+  - lastTransitionTime: "2025-02-10T09:21:02Z"
+    message: ""
+    reason: ""
+    status: "True"
+    type: Available
+  readyReplicas: 0
+  version: 4.16.29

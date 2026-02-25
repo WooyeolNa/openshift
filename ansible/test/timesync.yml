@@ -1,0 +1,11 @@
+---
+
+- name: timesync
+  hosts: all
+  vars:
+    timesync_ntp_servers:
+      - hostname: 172.1.157.214
+        iburst: true
+
+  roles:
+    - rhel-system-roles.timesync

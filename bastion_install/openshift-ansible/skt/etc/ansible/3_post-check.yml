@@ -1,0 +1,35 @@
+---
+- name: Post-Check
+  hosts: all
+  become: true
+  serial: 10
+  gather_facts: yes
+  vars:
+    timestamp: "{{lookup('pipe', 'date +%Y%m%d')}}"
+  tasks:
+    - name: 1. Post-Check File Copy
+      copy:
+         src: /ansible/files/post-check.sh
+         dest: /ansible/
+         owner: root
+         group: root
+         mode: 0744
+    - name: 2. Directory Create
+      file:
+         path: /ansible/gsi/
+         state: directory
+         owner: root
+         group: root
+         mode: 0755
+    - name: 3. Execute Post-Check Shell
+      shell: "{{ item }}"
+      with_items:
+         - /ansible/post-check.sh
+    - name: 3. Cat results
+      command: grep -E "NOK|CID" /ansible/gsi/post_check_results
+      register: post_check_results
+    - name: Print result variable
+      debug:
+        msg:
+          - "{{ post_check_results.stdout_lines }}"
+

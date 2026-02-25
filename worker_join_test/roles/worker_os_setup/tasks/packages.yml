@@ -1,0 +1,46 @@
+---
+- name: Install baseline packages (including kernel-modules-extra)
+  vars:
+    worker_packages:
+      - vim
+      - bash-completion
+      - bind-utils
+      - bzip2
+      - chrony
+      - dstat
+      - ethtool
+      - lsof
+      - net-tools
+      - pciutils
+      - rsync
+      - sos
+      - strace
+      - sysstat
+      - sysfsutils
+      - tcpdump
+      - traceroute
+      - vim-enhanced
+      - zip
+      - unzip
+      - iptraf-ng
+      - iptstate
+      - nmap
+      - nmap-ncat
+      - numactl
+      - iotop
+      - lsscsi
+      - ipmitool
+      - psmisc
+      - tar
+      - python3
+      - httpd-tools
+      - podman
+      - yum-utils
+      - wget
+      - wireshark
+      - kernel-modules-extra
+  ansible.builtin.package:
+    name: "{{ worker_packages }}"
+    state: present
+    allowerasing: true
+

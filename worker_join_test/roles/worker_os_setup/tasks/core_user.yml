@@ -1,0 +1,29 @@
+---
+- name: Ensure 'core' user exists with password and wheel group
+  ansible.builtin.user:
+    name: core
+    password: "{{ core_pw }}"
+    groups: wheel
+    append: true
+    state: present
+    create_home: true
+
+- name: Allow passwordless sudo for core
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/core
+    owner: root
+    group: root
+    mode: "0440"
+    content: |
+      core ALL=(root) NOPASSWD:ALL
+
+- name: Add alias vi=vim to core .bash_profile
+  ansible.builtin.lineinfile:
+    path: /home/core/.bash_profile
+    regexp: "^alias vi='vim'"
+    line: "alias vi='vim'"
+    create: true
+    owner: core
+    group: core
+    mode: "0644"
+

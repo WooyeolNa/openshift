@@ -1,0 +1,72 @@
+---
+- name: OS-init(S/W install & Configration settings)
+  hosts: all
+  become: true
+  serial: 1
+  vars:
+    uptime_limit : 20
+    cpu_idle_limit : 80
+    mem_limit : 15
+    ipaddr_limit : 1
+    qemu_limit : 0
+    timestamp: "{{lookup('pipe', 'date +%Y%m%d')}}"
+
+  tasks:
+
+  - name: OS Configuraions Automation ###
+    block:
+#    - name: 29. NTP setting
+#      copy:
+#         src: /etc/chrony.conf
+#         dest: /etc/chrony.conf
+#         owner: root
+#         group: root
+#         mode: 0644
+#         backup: yes
+    - name: 30. HWClock & Local Time setting
+      command: "{{ item }}"
+      with_items:
+#         - systemctl restart chronyd
+         - ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+         - hwclock -w
+      args:
+         warn: false
+    - name: 31. Temprature Monitoring Cron Job setting
+      copy:
+         src: /var/spool/cron/suser
+         dest: /var/spool/cron/suser
+         owner: suser
+         group: suser
+         mode: 0600
+         backup: yes
+      when: ansible_system_vendor == "HP" or "HPE"
+    - name: 32. Temprature Monitoring File Copy & IP Settings
+      command: "{{ item }}"
+      with_items:
+         - mkdir -p /home/suser/BRNOC/LOG
+         - cp /ansible/qryTemperatureILO.sh /home/suser/BRNOC/qryTemperatureILO.sh
+         - chmod 744  /home/suser/BRNOC/qryTemperatureILO.sh
+         - chown -Rf suser:suser /home/suser/
+#         - sh /ansible/setTempIP.sh
+         - chcon -t user_cron_spool_t -u unconfined_u /var/spool/cron/suser
+      args:
+         warn: false
+      when: ansible_system_vendor == "HP" or "HPE"
+    - name: 33. Additional Settings
+      command: "{{ item }}"
+      with_items:
+         - systemctl mask ctrl-alt-del.target
+#         - systemctl start ntpd
+#         - systemctl enable ntpd
+#         - systemctl stop chronyd
+#         - systemctl disable chronyd
+#         - systemctl stop postfix
+#         - systemctl disable postfix
+         - systemctl stop firewalld
+         - systemctl disable firewalld
+         - systemctl stop rpcbind
+         - systemctl disable rpcbind
+         - systemctl stop rpcbind.socket
+         - systemctl disable rpcbind.socket
+      args:
+         warn: false

@@ -1,0 +1,10 @@
+---
+- hosts: db
+  vars_files:
+    - vars/mysecret.yml
+
+  tasks:
+    - name: Create User {{ user }}
+      ansible.builtin.user:
+        name: "{{ user }}"
+        state: present

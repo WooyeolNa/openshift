@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment  # StatefulSet에서 Deployment로 변경
+metadata:
+  name: test-shared-block
+  namespace: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-busybox-shared
+  template:
+    metadata:
+      labels:
+        app: test-busybox-shared
+    spec:
+      containers:
+      - name: busybox
+        image: registry.opas-tb.sktelecom.com:5000/ubi/ubi9:latest
+        command:
+          - sh
+          - -c
+          - "sleep 3600"
+        volumeDevices:
+        - name: shared-data
+          devicePath: /dev/sdb
+      volumes:
+      - name: shared-data
+        persistentVolumeClaim:
+          claimName: data-test-pod-block-1

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: test-busybox-file
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: test-busybox-file
+  template:
+    metadata:
+      labels:
+        app: test-busybox-file
+    spec:
+      containers:
+      - name: busybox
+        image: registry.opas-tb.sktelecom.com:5000/test/busybox:latest
+        command:
+          - sh
+          - -c
+          - "sleep 3600"
+        volumeMounts:
+        - name: data
+          mountPath: /mnt/data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteMany"]
+      storageClassName: px-rwx-file-kubevirt
+      resources:
+        requests:
+          storage: 2Gi

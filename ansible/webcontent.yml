@@ -1,0 +1,24 @@
+---
+
+- name: webcontent
+  hosts: dev
+  tasks:
+    - name: Create directory
+      file:
+        path: /webdev
+        group: webdev
+        mode: 2775
+        state: directory
+
+
+    - name: link webdev
+      file:
+        src: /webdev
+        dest: /var/www/html/webdev
+        state: link
+
+    - name: Create index.html
+      copy:
+        dest: /webdev/index.html
+        content: "Development"
+        setype: httpd_sys_content_t 

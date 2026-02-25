@@ -1,0 +1,20 @@
+---
+- name: Check cluster-admin permission
+  hosts: bastion
+  gather_facts: false
+  become: false
+  roles:
+    - cluster_admin_check
+
+- name: Worker baseline OS setup
+  hosts: workers
+  gather_facts: true
+  roles:
+    - worker_os_setup
+
+- name: Worker kernel & coredump configuration
+  hosts: workers
+  gather_facts: false
+  roles:
+    - worker_kernel_coredump
+

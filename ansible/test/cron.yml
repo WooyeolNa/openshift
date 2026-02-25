@@ -1,0 +1,11 @@
+---
+
+- name: cronjob
+  hosts: all
+  tasks:
+    - name: cron natasha
+      cron:
+        name: cronjob
+        minute: '*/2'
+        user: root
+        job: logger "EX294 in progress"

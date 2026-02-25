@@ -1,0 +1,50 @@
+ilorest_file : /ansible/ilorest-4.5.0.0-93.x86_64.rpm
+amsd_file : /ansible/amsd-3.3.0-1773.23.rhel8.x86_64.rpm
+array_controller_cli_file : /ansible/storcli-007.2417.0000.0000-1.noarch.rpm
+#array_controller_cli_file : /ansible/ssacli-6.25-9.0.x86_64.rpm
+dell_om_file : ipmitool
+uptime_limit : 30
+cpu_idle_limit : 0
+mem_limit : 100
+ipaddr_limit : 10
+qemu_limit : 1
+timestamp: "{{lookup('pipe', 'date +%Y%m%d')}}"
+packages:
+ - vim
+ - pciutils
+ - ipmitool
+ - lshw
+ - smartmontools
+ - sysstat
+ - psmisc
+ - lvm2
+ - traceroute
+ - tcpdump
+ - mtr
+ - net-tools
+# - ntp
+ - zip
+# - glances
+# - dstat       #dependencies???
+# - htop
+ - sos
+ - openssh
+ - openssl
+ - iotop
+# - virt-top
+# - iftop          #dependencies???
+# - lm_sensors    #dependencies???
+ - numactl
+ - lsof
+ - tar
+create_user:
+ - name: suser
+   password: "{{'suser'|password_hash('sha512')}}"
+ - name: skroot
+   password: "{{'skroot'|password_hash('sha512')}}"
+# - name: tcore
+#   password: "{{'tcore!2019'|password_hash('sha512')}}"
+ - name: bkms
+   password: "{{'tjdtn@279'|password_hash('sha512')}}"
+ - name: ansible
+   password: "{{'ansib1e!'|password_hash('sha512')}}"

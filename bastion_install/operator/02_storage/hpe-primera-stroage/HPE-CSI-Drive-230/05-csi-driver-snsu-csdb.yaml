@@ -1,0 +1,47 @@
+apiVersion: storage.hpe.com/v1
+kind: HPECSIDriver
+metadata:
+  name: csi-driver
+  namespace: hpe-csi-driver
+spec:
+  disable:
+    nimble: true
+    primera: false
+    alletra6000: true
+    alletra9000: false
+  imagePullPolicy: IfNotPresent
+  logLevel: info
+  disableNodeConformance: false
+  disableNodeGetVolumeStats: false
+  disableNodeConfiguration: false
+  kubeletRootDir: "/var/lib/kubelet/"
+  iscsi:
+    chapUser: ''
+    chapPassword: ''
+  registry: snsu-registry.ocp.skt.local:5000
+  controller:
+    affinity: {}
+    labels: {}
+    nodeSelector:
+      node-role.kubernetes.io/master: ""
+    tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      operator: Exists
+  csp:
+    affinity: {}
+    labels: {}
+    nodeSelector:
+      node-role.kubernetes.io/master: ""
+    tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      operator: Exists
+  node:
+    affinity: {}
+    labels: {}
+    nodeSelector: {}
+    tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      operator: Exists

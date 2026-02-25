@@ -1,0 +1,70 @@
+apiVersion: "logging.openshift.io/v1"
+kind: "ClusterLogging"
+metadata:
+  name: "instance"
+  namespace: "openshift-logging"
+spec:
+  managementState: "Managed"
+  logStore:
+    type: "elasticsearch"
+    retentionPolicy:
+      application:
+        maxAge: 1d
+      infra:
+        maxAge: 7d
+      audit:
+        maxAge: 7d
+    elasticsearch:
+      nodeCount: 3
+      storage:
+        storageClassName: "logging-sc"
+        size: 200G
+      resources:
+        limits:
+          memory: "32Gi"
+        requests:
+          cpu: "2"
+          memory: "32Gi"
+      proxy:
+        resources:
+          limits:
+            memory: 256Mi
+          requests:
+             memory: 256Mi
+      redundancyPolicy: "SingleRedundancy"
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+      - effect: NoExecute
+        key: node.kubernetes.io/not-ready
+        operator: Exists
+        tolerationSeconds: 30
+      - effect: NoExecute
+        key: node.kubernetes.io/unreachable
+        operator: Exists
+        tolerationSeconds: 30
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+  visualization:
+    type: "kibana"
+    kibana:
+      replicas: 1
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+      - effect: NoExecute
+        key: node.kubernetes.io/not-ready
+        operator: Exists
+        tolerationSeconds: 30
+      - effect: NoExecute
+        key: node.kubernetes.io/unreachable
+        operator: Exists
+        tolerationSeconds: 30
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+  collection:
+    logs:
+      type: "fluentd"
+      fluentd: {}

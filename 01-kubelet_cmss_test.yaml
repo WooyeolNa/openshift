@@ -1,0 +1,13 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: router
+  name: cmss-tuning
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      machineconfiguration.openshift.io/role: router
+  kubeletConfig:
+    reservedSystemCPUs: "0-1"
+

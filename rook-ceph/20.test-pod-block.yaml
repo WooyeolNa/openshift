@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: test-pod-block
+  namespace: test
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: test-busybox-block
+  template:
+    metadata:
+      labels:
+        app: test-busybox-block
+    spec:
+      tolerations:
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 30
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 30
+      containers:
+      - name: busybox
+        image: registry.opas-tb.sktelecom.com:5000/ubi/ubi9:latest
+        command:
+          - sh
+          - -c
+          - "sleep 3600"
+        volumeDevices:
+        - name: data
+          devicePath: /dev/sdb
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      volumeMode: Block
+      storageClassName: rook-ceph-block
+      resources:
+        requests:
+          storage: 2Gi

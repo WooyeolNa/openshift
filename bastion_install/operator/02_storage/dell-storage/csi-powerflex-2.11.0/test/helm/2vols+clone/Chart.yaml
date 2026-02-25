@@ -1,0 +1,9 @@
+name: 2vols+clone
+version: 1.0.0
+apiVersion: v1
+description: |
+  Tests VxFlexOS CSI deployments.
+keywords:
+- vxflexos-csi
+- storage
+engine: gotpl

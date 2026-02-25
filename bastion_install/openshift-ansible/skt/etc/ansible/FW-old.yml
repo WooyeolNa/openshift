@@ -1,0 +1,38 @@
+---
+- name: HP Proliant DL360 Gen10 F/W Upgrade
+  hosts: all
+  become: true
+  tasks:
+    - name: RPM/Shell file copy
+      copy:
+         src: "{{ item }}"
+         dest: /ansible/
+         owner: root
+         group: root
+         mode: 0744
+      with_fileglob:
+         - /mnt/localrepo/HP/*
+    - name: Expect file copy
+      copy:
+         src: /ansible/file/expect_FW_Upgrade.sh
+         dest: /ansible/
+         owner: root
+         group: root
+         mode: 0744
+     - name: Expect Install
+       yum:
+         name: expect
+         state: latest
+    - name: Firmware RPM File Install
+      yum:
+         name: "{{ item }}"
+         state: present
+      args:
+         disable_gpg_check: yes
+      loop:
+         - /ansible/firmware-system-u32-2.54_2021_09_03-2.1.x86_64.rpm
+         - /ansible/firmware-ilo5-2.55-1.1.x86_64.rpm
+         - /ansible/firmware-smartarray-f7c07bdbbd-4.11-1.1.x86_64.rpm
+         - /ansible/firmware-nic-intel-1.21.6-1.1.x86_64.rpm
+#    - name: Extract Tar file
+#      unarchive:

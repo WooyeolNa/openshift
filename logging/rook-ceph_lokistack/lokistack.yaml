@@ -1,0 +1,28 @@
+apiVersion: loki.grafana.com/v1
+kind: LokiStack
+metadata:
+  name: logging-loki
+  namespace: openshift-logging
+spec:
+  limits:
+    global:
+      retention:
+        days: 2
+  managementState: Managed
+  size: 1x.pico
+  replication:
+    zones:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+  storage:
+    schemas:
+    - effectiveDate: '2026-02-12'
+      version: v13
+    secret:
+      name: lokistack-ceph-s3
+      type: s3
+    s3:
+      s3ForcePathStyle: true    
+  storageClassName: rook-ceph-block
+  tenants:
+    mode: openshift-logging
