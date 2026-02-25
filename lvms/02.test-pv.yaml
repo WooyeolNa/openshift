@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-pv-0
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: lvms-vg1
+  local:
+    path: /var/lib/containers/test-pv-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - skt-bssocpdawkr01.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr02.devocp1-416.sktelecom.com
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-pv-1
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: lvms-vg1
+  local:
+    path: /var/lib/containers/test-pv-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - skt-bssocpdawkr01.devocp1-416.sktelecom.com
+          - skt-bssocpdawkr02.devocp1-416.sktelecom.com
+

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: test-pod-2
+  namespace: test
+  labels:
+    test: pod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      test: nginx
+  template:
+    metadata:
+      labels:
+        test: nginx
+        statefulset: ""
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/router: ""
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/router
+        operator: Exists
+      containers:
+      - name: nginx-test
+        image: skt-bssocpdargst.devocp1-416.sktelecom.com:5016/library/nginx:stable-alpine3.20-perl
+        command:
+        - /bin/sh
+        - -c
+        - echo -e "\nThis is pod $(hostname)\n;" > /usr/share/nginx/html/index.html && nginx -g 'daemon off;' 
+        volumeMounts:
+          - name: test-pvc 
+            mountPath: /mnt/data
+        securityContext:
+          allowPrivilegeEscalation: false
+  volumeClaimTemplates:
+  - metadata:
+      name: test-pvc
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "lvms-vg1"
+      resources:
+        requests:
+          storage: 4Gi
+
