@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: test-busybox
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: test-busybox
+  template:
+    metadata:
+      labels:
+        app: test-busybox
+    spec:
+      containers:
+      - name: busybox
+        image: registry.opas-tb.sktelecom.com:5000/test/busybox:latest
+        command:
+          - sh
+          - -c
+          - "sleep 3600"
+        volumeMounts:
+        - name: data
+          mountPath: /mnt/data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteMany"]
+      storageClassName: managed-nfs-storage
+      resources:
+        requests:
+          storage: 2Gi
